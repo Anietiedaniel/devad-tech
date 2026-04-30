@@ -1,13 +1,13 @@
 import { motion } from "framer-motion";
 import { ArrowRight, PhoneCall, Mail } from "lucide-react";
 
-export default function HomeCTASection() {
+export default function HomeActionSection() {
   return (
     <section className="relative bg-black text-white py-32 overflow-hidden">
 
       {/* Background Glow */}
       <div className="absolute inset-0 flex justify-center items-center">
-        <div className="w-[600px] h-[60px] bg-indigo-600/10 blur-[180px] rounded-full" />
+        <div className="w-[600px] h-[601px] bg-indigo-600/10 blur-[180px] rounded-full" />
       </div>
 
       <div className="relative max-w-5xl mx-auto px-6 text-center">
