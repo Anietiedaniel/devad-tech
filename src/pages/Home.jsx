@@ -13,7 +13,7 @@ export default function Home() {
       <HomeProcessSection />
       <HomeFeaturedProjects />
       <HomeTestimonialSection />
-      <HomeCTASection />
+      <HomeActionSection />
       
       {/* Other home sections will go here later */}
     </>
