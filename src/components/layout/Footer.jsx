@@ -113,7 +113,7 @@ export default function Footer() {
 
           <div className="flex flex-col gap-3 text-sm">
             <p className="flex items-center gap-2">
-              <Mail size={20} /> devadtech@gmail.com
+              <Mail size={20} /> devadtechnologies@gmail.com
             </p>
 
             <p className="flex items-center gap-2">
