@@ -177,8 +177,11 @@ export default function Header() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.25 }}
-              className="lg:hidden bg-[#050b1a] border-t border-white/10 fixed left-0 w-full z-50"
-              style={{ top: HEADER_HEIGHT }}
+              className="lg:hidden bg-[#050b1a] border-t border-white/10 fixed left-0 w-full z-50  overflow-y-auto scroll-smooth"
+              style={{
+                top: HEADER_HEIGHT,
+                maxHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
+              }}
             >
               <div className="flex flex-col px-6 py-6 gap-4">
                 {navLinks.map((link) => {
