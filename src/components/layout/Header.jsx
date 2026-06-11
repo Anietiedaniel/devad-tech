@@ -4,25 +4,29 @@ import {
   Menu,
   X,
   Home,
-  Cpu,
-  Briefcase,
   GraduationCap,
-  Info,
-  Mail,
+  Route,
+  BadgeDollarSign,
+  Building2,
+  Phone,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "../../assets/logo.png";
 
 const HEADER_HEIGHT = 80;
 
-// Simple throttle utility
+// Throttle utility
 const throttle = (func, limit) => {
   let inThrottle;
+
   return function (...args) {
     if (!inThrottle) {
       func.apply(this, args);
       inThrottle = true;
-      setTimeout(() => (inThrottle = false), limit);
+
+      setTimeout(() => {
+        inThrottle = false;
+      }, limit);
     }
   };
 };
@@ -30,86 +34,135 @@ const throttle = (func, limit) => {
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+
   const menuRef = useRef(null);
 
-  // Throttled scroll handler
+  // Scroll effect
   const handleScroll = useCallback(
     throttle(() => {
       setScrolled(window.scrollY > 10);
-    }, 16), // ~60fps
+    }, 16),
     []
   );
 
   useEffect(() => {
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, {
+      passive: true,
+    });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, [handleScroll]);
 
-  // Close menu on outside click
+  // Outside click close
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target)
+      ) {
         setIsOpen(false);
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener(
+      "mousedown",
+      handleClickOutside
+    );
+
+    return () => {
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside
+      );
+    };
   }, []);
 
-  // Lock body scroll when mobile menu is open
+  // Lock body scroll
   useEffect(() => {
-    document.body.style.overflow = isOpen ? "hidden" : "auto";
+    document.body.style.overflow = isOpen
+      ? "hidden"
+      : "auto";
 
     return () => {
       document.body.style.overflow = "auto";
     };
   }, [isOpen]);
 
-  // Memoized navigation links
-  const navLinks = useMemo(
-    () => [
-      { name: "Home", path: "/", icon: Home },
-      { name: "Services", path: "/services", icon: Cpu },
-      { name: "Projects", path: "/projects", icon: Briefcase },
-      { name: "Training", path: "/training", icon: GraduationCap },
-      { name: "About", path: "/about", icon: Info },
-      { name: "Contact", path: "/contact", icon: Mail },
-    ],
-    []
-  );
+  // Navigation links
+ const navLinks = useMemo(
+  () => [
+   {
+    name: "Home",
+    path: "/",
+    icon: Home,
+  },
+  {
+    name: "Courses",
+    path: "/courses",
+    icon: GraduationCap,
+  },
+  {
+    name: "Career Paths",
+    path: "/career-paths",
+    icon: Route,
+  },
+  {
+    name: "About",
+    path: "/about",
+    icon: Building2,
+  },
+  {
+    name: "Contact",
+    path: "/contact",
+    icon: Phone,
+  },
+  ],
+  []
+);
 
-  const toggleMenu = useCallback(() => setIsOpen((prev) => !prev), []);
-  const closeMenu = useCallback(() => setIsOpen(false), []);
+  const toggleMenu = useCallback(() => {
+    setIsOpen((prev) => !prev);
+  }, []);
+
+  const closeMenu = useCallback(() => {
+    setIsOpen(false);
+  }, []);
 
   return (
     <header
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-[#050b1a]/98 shadow-lg shadow-cyan-900/20 border-b border-cyan-500/20"
-          : "bg-[#050b1a]/92 border-b border-white/10"
-      } backdrop-blur-lg`}
+          ? "bg-[#040816]/98 border-b border-cyan-500/20 shadow-lg shadow-cyan-900/20"
+          : "bg-[#040816]/90 border-b border-white/10"
+      } backdrop-blur-xl`}
     >
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo */}
-        <NavLink to="/" className="flex items-center gap-3 group">
+        <NavLink
+          to="/"
+          className="flex items-center gap-3 group"
+        >
           <img
             src={logo}
-            alt="DEVAD Technologies Logo"
-            className="w-11 h-11 object-contain transition-transform duration-300 group-hover:scale-110"
+            alt="Devad Technologies Academy Logo"
+            className="w-12 h-12 object-contain transition-transform duration-300 group-hover:scale-110"
           />
+
           <div className="leading-tight">
-            <h1 className="text-lg font-semibold text-white tracking-wider">
+            <h1 className="text-white text-lg font-bold tracking-wide">
               DEVAD
             </h1>
-            <p className="text-xs text-cyan-400 tracking-[0.25em]">
-              TECHNOLOGIES
+
+            <p className="text-cyan-400 text-xs tracking-[0.28em] font-medium">
+              TECH ACADEMY
             </p>
           </div>
         </NavLink>
 
-        {/* Desktop Nav */}
-        <nav className="hidden lg:flex items-center gap-10">
+        {/* Desktop Navigation */}
+        <nav className="hidden xl:flex items-center gap-8">
           {navLinks.map((link) => (
             <NavLink
               key={link.name}
@@ -125,35 +178,43 @@ export default function Header() {
               {({ isActive }) => (
                 <div className="relative group">
                   {link.name}
+
                   <span
-                    className={`absolute left-0 bottom-0 h-[2px] w-full scale-x-0 origin-left transition-transform duration-300 ${
-                      isActive ? "scale-x-100" : "group-hover:scale-x-100"
+                    className={`absolute left-0 -bottom-1 h-[2px] w-full bg-gradient-to-r from-cyan-400 to-blue-500 origin-left transition-transform duration-300 ${
+                      isActive
+                        ? "scale-x-100"
+                        : "scale-x-0 group-hover:scale-x-100"
                     }`}
-                  >
-                    <span className="electric-underline"></span>
-                  </span>
+                  />
                 </div>
               )}
             </NavLink>
           ))}
 
           <NavLink
-            to="/contact"
-            className="ml-6 px-6 py-2.5 rounded-md bg-gradient-to-r from-cyan-500 to-blue-600 text-black font-semibold text-sm tracking-wide transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/40 hover:scale-105 active:scale-95"
+            to="/login"
+            className="ml-4 px-6 py-2.5 rounded-lg bg-gradient-to-r from-cyan-400 to-blue-600 text-black font-semibold text-sm transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/30"
           >
-            Request a Custom Build
+            Enroll Now
           </NavLink>
         </nav>
 
         {/* Mobile Toggle */}
-        <div className="lg:hidden text-white">
-          <button onClick={toggleMenu} aria-label="Toggle menu">
-            {isOpen ? <X size={26} /> : <Menu size={26} />}
+        <div className="xl:hidden text-white">
+          <button
+            onClick={toggleMenu}
+            aria-label="Toggle Menu"
+          >
+            {isOpen ? (
+              <X size={28} />
+            ) : (
+              <Menu size={28} />
+            )}
           </button>
         </div>
       </div>
 
-      {/* Mobile Dropdown */}
+      {/* Mobile Menu */}
       <AnimatePresence>
         {isOpen && (
           <>
@@ -162,7 +223,7 @@ export default function Header() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed left-0 w-full bg-black/80 backdrop-blur-xl z-40 lg:hidden"
+              className="fixed left-0 w-full bg-black/80 backdrop-blur-lg z-40 xl:hidden"
               style={{
                 top: HEADER_HEIGHT,
                 height: `calc(100vh - ${HEADER_HEIGHT}px)`,
@@ -170,29 +231,30 @@ export default function Header() {
               onClick={closeMenu}
             />
 
-            {/* Menu */}
+            {/* Mobile Dropdown */}
             <motion.div
               ref={menuRef}
               initial={{ opacity: 0, y: -15 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.25 }}
-              className="lg:hidden bg-[#050b1a] border-t border-white/10 fixed left-0 w-full z-50  overflow-y-auto scroll-smooth"
+              className="fixed left-0 w-full bg-[#040816] border-t border-white/10 z-50 xl:hidden overflow-y-auto"
               style={{
                 top: HEADER_HEIGHT,
                 maxHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
               }}
             >
-              <div className="flex flex-col px-6 py-6 gap-4">
+              <div className="flex flex-col gap-4 px-6 py-6">
                 {navLinks.map((link) => {
                   const Icon = link.icon;
+
                   return (
                     <NavLink
                       key={link.name}
                       to={link.path}
                       onClick={closeMenu}
                       className={({ isActive }) =>
-                        `flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-300 ${
+                        `flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 ${
                           isActive
                             ? "bg-cyan-500/10 text-cyan-400"
                             : "text-gray-300 hover:bg-white/5 hover:text-white"
@@ -200,17 +262,20 @@ export default function Header() {
                       }
                     >
                       <Icon size={20} />
-                      <span className="text-lg font-medium">{link.name}</span>
+
+                      <span className="text-base font-medium">
+                        {link.name}
+                      </span>
                     </NavLink>
                   );
                 })}
 
                 <NavLink
-                  to="/contact"
+                  to="/login"
                   onClick={closeMenu}
-                  className="mt-4 px-5 py-3 rounded-md bg-gradient-to-r from-cyan-500 to-blue-600 text-black font-semibold text-center transition-all active:scale-95"
+                  className="mt-4 px-5 py-3 rounded-lg bg-gradient-to-r from-cyan-400 to-blue-600 text-black font-semibold text-center transition-all active:scale-95"
                 >
-                  Request a Custom Build
+                  Enroll Now
                 </NavLink>
               </div>
             </motion.div>
@@ -220,5 +285,3 @@ export default function Header() {
     </header>
   );
 }
-
-

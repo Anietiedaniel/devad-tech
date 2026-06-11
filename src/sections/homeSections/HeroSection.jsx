@@ -1,69 +1,73 @@
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import robot from "../../assets/robotics.png";
-
+import bgVideo from "../../assets/videos/bg.mp4"
 export default function HeroSection() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black text-white pt-24 md:pt-28 lg:pt-0">
+    <section className="relative min-h-screen overflow-hidden bg-[#020617] text-white flex items-center pt-24 lg:pt-20 lg:mt-10 lg:pb-20">
 
-      {/* Tech Grid Background */}
-      <div className="absolute inset-0 opacity-20 bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:40px_40px]" />
+      {/* 🎬 Background Video */}
+  <video
+  className="absolute inset-0 w-full h-full object-cover object-center opacity-40"
+  autoPlay
+  loop
+  muted
+  playsInline
+  src={bgVideo}
+/>
 
-      {/* Glow Accent */}
-      <div className="absolute w-[600px] h-[600px] bg-indigo-600/20 blur-[150px] rounded-full top-[-100px] right-[-100px]" />
+      {/* Background Grid */}
+      <div className="absolute inset-0 opacity-20 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:45px_45px]" />
 
-      <div className="relative max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+      {/* Dark Overlay */}
+      <div className="absolute inset-0 bg-[#020617]/60 z-0" />
 
-        {/* LEFT SIDE */}
-        <motion.div
-          initial={{ opacity: 0, y: 60 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-          className="text-center md:text-left"
-        >
-          <h1 className="text-4xl sm:text-5xl md:text-5xl lg:text-6xl font-bold leading-tight">
-            Building{" "}
-            <span className="text-indigo-500">
-              Smart Systems
-            </span>
-            <br />
-            <span className="text-white/90">
-              for the Future
-            </span>
-          </h1>
+      {/* Glow Effects */}
+      <div className="absolute top-[-150px] left-[-100px] w-[500px] h-[500px] bg-cyan-500/25 blur-[140px] rounded-full" />
+      <div className="absolute bottom-[-200px] right-[-100px] w-[500px] h-[500px] bg-blue-600/25 blur-[140px] rounded-full" />
 
-          <p className="mt-6 text-base sm:text-lg text-gray-300 max-w-xl mx-auto md:mx-0">
-            Advanced AI, robotics, and embedded technologies engineered for real-world impact.
-          </p>
+      {/* Content */}
+      <div className="relative z-10 max-w-7xl mx-auto px-6 w-full text-center">
+        <div className="flex items-center min-h-[75vh] justify-center">
+          <motion.div
+            initial={{ opacity: 0, y: 60 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1 }}
+            className="max-w-4xl text-center justify-center items-center"
+          >
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-cyan-500/20 bg-cyan-500/10 text-cyan-300 text-sm mb-6 backdrop-blur-md mx-auto">
+              Future-Driven Tech Academy
+            </div>
 
-          <div className="mt-8 flex flex-wrap gap-4 justify-center md:justify-start">
-            <button className="bg-indigo-600 hover:bg-indigo-700 px-6 py-3 rounded-xl flex items-center gap-2 transition-all duration-300">
-              Explore Our Services
-              <ArrowRight size={18} />
-            </button>
+            {/* Heading */}
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
+              Learn High-Income
+              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500">
+                Tech Skills
+              </span>
+              That Build Real Careers
+            </h1>
 
-            <button className="border border-gray-500 hover:border-white px-6 py-3 rounded-xl transition-all duration-300">
-              View Our Projects
-            </button>
-          </div>
-        </motion.div>
+            {/* Description */}
+            <p className="mt-8 text-gray-300 text-base sm:text-lg lg:text-xl max-w-3xl leading-relaxed mx-auto">
+              Master in-demand tech skills through hands-on learning.
+              Build real projects and prepare for career opportunities.
+            </p>
 
-        {/* RIGHT SIDE */}
-        <motion.div
-          initial={{ opacity: 0, x: 80 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 1.2 }}
-          className="relative flex justify-center md:justify-end"
-        >
-          <div className="w-full max-w-sm md:max-w-md lg:max-w-lg">
-            <img
-              src={robot}
-              alt="Smart Robotics System"
-              className="w-full drop-shadow-[0_20px_40px_rgba(99,102,241,0.5)]"
-            />
-          </div>
-        </motion.div>
+            {/* CTA Buttons */}
+            {/* <div className="mt-10 flex flex-row gap-3 justify-center items-center flex-wrap sm:flex-nowrap">
+              <button className="bg-gradient-to-r from-cyan-400 to-blue-600 hover:scale-105 transition-all duration-300 py-3 px-6 sm:py-4 sm:px-8 rounded-xl text-black font-semibold flex items-center gap-2 shadow-lg shadow-cyan-500/30 text-sm sm:text-base whitespace-nowrap">
+                Enroll Now
+                <ArrowRight size={16} />
+              </button>
 
+              <button className="border border-white/20 hover:border-cyan-400 hover:bg-cyan-500/10 transition-all duration-300 px-6 py-3 sm:px-8 sm:py-4 rounded-xl backdrop-blur-md text-sm sm:text-base whitespace-nowrap">
+                Explore Courses
+              </button>
+            </div> */}
+
+          </motion.div>
+        </div>
       </div>
     </section>
   );

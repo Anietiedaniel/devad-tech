@@ -1,91 +1,149 @@
 import { motion } from "framer-motion";
-import { Home, Building2, Factory, ShieldCheck } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import {
+  CheckCircle2,
+  Code2,
+  BrainCircuit,
+  ShieldCheck,
+  BarChart3,
+  Users,
+} from "lucide-react";
 
-export default function HomeAuthoritySection() {
-    const pillars = [
-      {
-        icon: <Home size={36} />,
-        title: "Smart Solutions for Homes",
-        description:
-          "We build intelligent systems that make homes safer and smarter — including fire protection systems, automation, remote monitoring, and smart control devices you can manage from anywhere.",
-      },
-      {
-        icon: <Building2 size={36} />,
-        title: "Office & Business Automation",
-        description:
-          "From security systems and energy control to workflow automation, we help businesses operate more efficiently using modern smart technologies.",
-      },
-      {
-        icon: <Factory size={36} />,
-        title: "Industrial & Heavy-Duty Systems",
-        description:
-          "We design reliable control systems, robotic solutions, and monitoring tools built to perform in demanding industrial environments.",
-      },
-      {
-        icon: <ShieldCheck size={36} />,
-        title: "Built to Last & Easy to Use",
-        description:
-          "Our systems are designed for durability, safety, and long-term performance — while remaining simple enough for anyone to operate.",
-      },
-    ];
+const features = [
+  {
+    icon: <Code2 size={28} />,
+    title: "Industry-Relevant Skills",
+    description:
+      "Master Software Development, AI, Cybersecurity, Data Analytics, UI/UX Design, and other high-demand tech skills.",
+  },
+  {
+    icon: <BrainCircuit size={28} />,
+    title: "Hands-On Learning",
+    description:
+      "Build real-world projects, strengthen your portfolio, and gain practical experience that employers value.",
+  },
+  {
+    icon: <BarChart3 size={28} />,
+    title: "Career-Focused Curriculum",
+    description:
+      "Follow structured learning paths designed to help you transition from beginner to job-ready professional.",
+  },
+  {
+    icon: <Users size={28} />,
+    title: "Live Interactive Sessions",
+    description:
+      "Attend engaging live classes, ask questions in real time, and receive direct guidance from instructors.",
+  },
+  {
+    icon: <ShieldCheck size={28} />,
+    title: "Expert-Led Training",
+    description:
+      "Learn from experienced instructors who bring real industry knowledge and best practices into every lesson.",
+  },
+  {
+    icon: <CheckCircle2 size={28} />,
+    title: "Supportive Community",
+    description:
+      "Connect with mentors, fellow learners, and tech professionals who help accelerate your growth.",
+  },
+];
+
+export default function WhyChooseUs() {
+
+  const navigate = useNavigate();
 
   return (
-    <section className="relative bg-black text-white py-28 overflow-hidden">
-      
-      {/* Glow */}
-      <div className="absolute inset-0 bg-gradient-to-b from-indigo-600/5 via-transparent to-transparent" />
+    <section className="relative bg-slate-950 py-24 overflow-hidden">
+      {/* Background Glow */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-20 left-20 h-72 w-72 rounded-full bg-cyan-500/10 blur-3xl" />
+        <div className="absolute bottom-20 right-20 h-72 w-72 rounded-full bg-blue-500/10 blur-3xl" />
+      </div>
 
-      <div className="relative max-w-6xl mx-auto px-6">
-
+      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.7 }}
           viewport={{ once: true }}
-          className="text-center max-w-3xl mx-auto"
+          className="text-center max-w-3xl mx-auto mb-16"
         >
-          <h2 className="text-3xl md:text-5xl font-bold">
-            Why Choose <span className="text-indigo-500">DEVAD</span>
+          <span className="inline-flex items-center rounded-full border border-cyan-500/30 bg-cyan-500/10 px-4 py-2 text-sm font-medium text-cyan-400">
+            Why Choose Us
+          </span>
+
+          <h2 className="mt-6 text-4xl md:text-5xl font-bold text-white">
+            Build Skills That Open
+            <span className="block text-cyan-400">
+              Real Career Opportunities
+            </span>
           </h2>
 
-        <p className="mt-6 text-gray-400 text-lg">
-          We design and build smart systems for homes, offices, businesses, and industries — making everyday operations smarter, safer and more efficient.
-        </p>
+          <p className="mt-6 text-lg text-slate-400 leading-relaxed">
+            We go beyond theory. Our academy equips students with practical
+            experience, industry-relevant skills, and the confidence needed to
+            thrive in today's rapidly evolving technology landscape.
+          </p>
         </motion.div>
 
-        {/* Features List */}
-        <div className="mt-20 space-y-16">
-
-          {pillars.map((item, index) => (
+        {/* Cards */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {features.map((item, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 60 }}
+              initial={{ opacity: 0, y: 35 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.15, duration: 0.7 }}
+              transition={{ duration: 0.5, delay: index * 0.08 }}
               viewport={{ once: true }}
-              className="group flex flex-col md:flex-row md:items-start gap-8 border-b border-zinc-800 pb-12"
+              whileHover={{ y: -8 }}
+              className="group relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/60 backdrop-blur-sm p-8"
             >
-              {/* Icon */}
-              <div className="text-indigo-500 group-hover:scale-110 transition-transform duration-300">
-                {item.icon}
-              </div>
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/0 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-              {/* Content */}
-              <div>
-                <h3 className="text-2xl font-semibold mb-4">
+              <div className="relative">
+                <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                  {item.icon}
+                </div>
+
+                <h3 className="mt-6 text-xl font-semibold text-white">
                   {item.title}
                 </h3>
 
-                <p className="text-gray-400 leading-relaxed max-w-2xl">
+                <p className="mt-4 text-slate-400 leading-relaxed">
                   {item.description}
                 </p>
               </div>
-
             </motion.div>
           ))}
-
         </div>
+
+        {/* Bottom CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 35 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          viewport={{ once: true }}
+          className="mt-20"
+        >
+          <div className="rounded-3xl border border-cyan-500/20 bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-cyan-500/10 p-10 text-center">
+            <h3 className="text-3xl font-bold text-white">
+              Start Building Your Future Today
+            </h3>
+
+            <p className="mt-4 max-w-2xl mx-auto text-slate-300">
+              Whether you're a complete beginner or looking to upgrade your
+              skills, our programs provide the knowledge, mentorship, and
+              hands-on experience needed to succeed in the tech industry.
+            </p>
+
+            <button 
+            onClick={() => navigate("/courses")}
+            className="mt-8 rounded-xl bg-cyan-500 px-8 py-4 font-semibold text-slate-950 transition hover:bg-cyan-400">
+              Enroll Now
+            </button>
+          </div>
+        </motion.div>
       </div>
     </section>
   );

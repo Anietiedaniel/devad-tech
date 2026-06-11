@@ -1,138 +1,206 @@
-import { NavLink } from "react-router-dom";
-import { Cpu, Mail, Phone, MapPin } from "lucide-react";
-import { FaGithub, FaLinkedin, FaTwitter } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import {
+  Code2,
+  BrainCircuit,
+  ShieldCheck,
+  BarChart3,
+  Palette,
+  Smartphone,
+  Server,
+  Mail,
+  Phone,
+  MapPin,
+  ArrowUpRight,
+} from "lucide-react";
+
+import {
+  FaFacebookF,
+  FaInstagram,
+  FaLinkedinIn,
+  FaWhatsapp,
+  FaYoutube,
+  FaXTwitter,
+} from "react-icons/fa6";
+
 import logo from "../../assets/logo.png";
+import { COURSES } from "../../data/course";
+
+const courseIcons = {
+  "full-stack":       Code2,
+  "ai-ml-engineering": BrainCircuit,
+  "cybersecurity":    ShieldCheck,
+  "data-analytics":   BarChart3,
+  "ui-ux-design":     Palette,
+  "mobile-app-dev":   Smartphone,
+  "frontend-dev":     Code2,
+  "backend-dev":      Server,
+};
+
+const quickLinks = [
+  { label: "Home",    path: "/" },
+  { label: "Courses", path: "/courses" },
+  { label: "About",   path: "/about" },
+  { label: "Contact", path: "/contact" },
+];
+
+const socialLinks = [
+  { icon: FaFacebookF, href: "#",                            label: "Facebook" },
+  { icon: FaInstagram, href: "#",                            label: "Instagram" },
+  { icon: FaXTwitter,  href: "#",                            label: "X" },
+  { icon: FaYoutube,   href: "#",                            label: "YouTube" },
+  { icon: FaWhatsapp,  href: "https://wa.me/2348106551348",  label: "WhatsApp" },
+  { icon: FaLinkedinIn,href: "#",                            label: "LinkedIn" },
+];
 
 export default function Footer() {
+  const navigate = useNavigate();
+
+  const visibleCourses = COURSES.filter((c) => c.status === "active").slice(0, 8);
+
   return (
-    <footer className="relative bg-[#050b1a] border-t border-white/10 text-gray-300 overflow-hidden">
+    <footer className="relative overflow-hidden border-t border-slate-800 bg-slate-950">
+      {/* Background Glow */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute left-0 top-0 h-96 w-96 rounded-full bg-cyan-500/5 blur-3xl" />
+        <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-blue-500/5 blur-3xl" />
+      </div>
 
-      {/* Glow Background */}
-      <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-indigo-600/10 blur-[180px] rounded-full pointer-events-none" />
+      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 py-20">
+        {/* Top Grid */}
+        <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
 
-      <div className="relative max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-4 gap-10">
+          {/* ── Brand ── */}
+          <div>
+            <div className="flex items-center gap-4">
+              <img src={logo} alt="Devad Tech Academy" className="h-14 w-auto" />
+              <div>
+                <h3 className="text-2xl font-bold text-white">Devad Tech Academy</h3>
+                <p className="text-sm text-cyan-400">Building Tomorrow's Tech Leaders.</p>
+              </div>
+            </div>
 
-        {/* BRAND */}
-        <div>
-          <div className="flex items-center gap-3 mb-5">
-            <img
-              src={logo}
-              alt="logo"
-              className="w-11 h-11 logo-glow transition-all duration-500"
-            />
-            <div>
-              <h2 className="text-white font-semibold text-lg">DEVAD</h2>
-              <p className="text-xs text-cyan-400 tracking-[0.25em]">
-                TECHNOLOGIES
-              </p>
+            {/* Socials */}
+            <div className="mt-8 flex flex-wrap gap-3">
+              {socialLinks.map((social) => {
+                const Icon = social.icon;
+                return (
+                  <a
+                    key={social.label}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={social.label}
+                    className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-800 bg-slate-900 text-slate-400 transition-all duration-300 hover:border-cyan-500/30 hover:text-cyan-400 hover:-translate-y-1"
+                  >
+                    <Icon size={17} />
+                  </a>
+                );
+              })}
             </div>
           </div>
 
-          <p className="text-sm text-gray-400 leading-relaxed">
-            Engineering intelligent systems in AI, robotics, embedded systems,
-            and IoT — transforming ideas into real-world innovation.
-          </p>
+          {/* ── Courses ── */}
+          <div>
+            <h3 className="text-lg font-semibold text-white">Our Courses</h3>
+            <ul className="mt-6 space-y-4">
+              {visibleCourses.map((course) => {
+                const Icon = courseIcons[course.slug] ?? Code2;
+                return (
+                  <li key={course.slug}>
+                    <button
+                      onClick={() => navigate(`/courses/${course.slug}`)}
+                      className="group flex items-center gap-3 text-slate-400 transition hover:text-cyan-400 text-left w-full"
+                    >
+                      <Icon size={16} className="shrink-0" />
+                      <span>{course.title}</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
 
-          {/* Social Icons */}
-          <div className="flex gap-4 mt-6">
-            <a
-              href="#"
-              className="p-2 bg-zinc-800 rounded-lg hover:bg-indigo-600 transition"
-            >
-              <FaGithub size={16} />
-            </a>
+          {/* ── Quick Links ── */}
+          <div>
+            <h3 className="text-lg font-semibold text-white">Quick Links</h3>
+            <ul className="mt-6 space-y-4">
+              {quickLinks.map(({ label, path }) => (
+                <li key={label}>
+                  <button
+                    onClick={() => navigate(path)}
+                    className="group flex items-center gap-2 text-slate-400 transition hover:text-cyan-400 w-full text-left"
+                  >
+                    {label}
+                    <ArrowUpRight
+                      size={14}
+                      className="opacity-0 transition group-hover:opacity-100"
+                    />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-            <a
-              href="#"
-              className="p-2 bg-zinc-800 rounded-lg hover:bg-indigo-600 transition"
-            >
-              <FaLinkedin size={16} />
-            </a>
+          {/* ── Contact ── */}
+          <div>
+            <h3 className="text-lg font-semibold text-white">Contact Us</h3>
 
-            <a
-              href="#"
-              className="p-2 bg-zinc-800 rounded-lg hover:bg-indigo-600 transition"
-            >
-              <FaTwitter size={16} />
-            </a>
+            <div className="mt-6 space-y-5">
+              <div className="flex gap-3">
+                <Mail size={18} className="mt-1 text-cyan-400 shrink-0" />
+                <span className="text-slate-400 break-all">devadacademy@gmail.com</span>
+              </div>
+              <div className="flex gap-3">
+                <Phone size={18} className="mt-1 text-cyan-400 shrink-0" />
+                <span className="text-slate-400">+234 810 655 1348</span>
+              </div>
+              <div className="flex gap-3">
+                <MapPin size={18} className="mt-1 text-cyan-400 shrink-0" />
+                <span className="text-slate-400">Port Harcourt, Rivers State, Nigeria</span>
+              </div>
+            </div>
+
+            {/* CTA Card */}
+            <div className="mt-8 rounded-2xl border border-cyan-500/10 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 p-5">
+              <h4 className="font-semibold text-white">Need Help?</h4>
+              <p className="mt-2 text-sm text-slate-400">
+                Speak with our admissions team and get guidance on choosing the right program.
+              </p>
+              <a
+                href="https://wa.me/2348106551348"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 inline-flex items-center rounded-xl bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400"
+              >
+                Chat on WhatsApp
+              </a>
+            </div>
           </div>
         </div>
 
-        {/* QUICK LINKS */}
-        <div>
-          <h3 className="text-white font-semibold mb-5">Quick Links</h3>
-
-          <div className="flex flex-col gap-3 text-sm">
-            <NavLink to="/" className="hover:text-indigo-400 transition">
-              Home
-            </NavLink>
-            <NavLink to="/services" className="hover:text-indigo-400 transition">
-              Services
-            </NavLink>
-            <NavLink to="/projects" className="hover:text-indigo-400 transition">
-              Projects
-            </NavLink>
-            <NavLink to="/training" className="hover:text-indigo-400 transition">
-              Training
-            </NavLink>
-            <NavLink to="/about" className="hover:text-indigo-400 transition">
-              About
-            </NavLink>
+        {/* Bottom Bar */}
+        <div className="mt-16 border-t border-slate-800 pt-8">
+          <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
+            <p className="text-center text-sm text-slate-500 md:text-left">
+              © {new Date().getFullYear()} Devad Tech Academy. All rights reserved.
+            </p>
+            <div className="flex gap-6 text-sm">
+              <button
+                onClick={() => navigate("/privacy")}
+                className="text-slate-500 transition hover:text-cyan-400"
+              >
+                Privacy Policy
+              </button>
+              <button
+                onClick={() => navigate("/terms")}
+                className="text-slate-500 transition hover:text-cyan-400"
+              >
+                Terms of Service
+              </button>
+            </div>
           </div>
         </div>
-
-        {/* EXPERTISE */}
-        <div>
-          <h3 className="text-white font-semibold mb-5">Expertise</h3>
-
-          <div className="flex flex-col gap-3 text-sm">
-            <p className="flex items-center gap-2">
-              <Cpu size={16} /> Smart Home Automation
-            </p>
-            <p className="flex items-center gap-2">
-              <Cpu size={16} /> Business & Office Automation
-            </p>
-            <p className="flex items-center gap-2">
-              <Cpu size={16} /> Industrial Machine Control
-            </p>
-            <p className="flex items-center gap-2">
-              <Cpu size={16} /> AI & Smart Software Systems
-            </p>
-            <p className="flex items-center gap-2">
-              <Cpu size={16} /> Robotics & Intelligent Machines
-            </p>
-            <p className="flex items-center gap-2">
-              <Cpu size={16} /> Security & Monitoring Solutions
-            </p>
-          </div>
-        </div>
-
-        {/* CONTACT */}
-        <div>
-          <h3 className="text-white font-semibold mb-5">Contact</h3>
-
-          <div className="flex flex-col gap-3 text-sm">
-            <p className="flex items-center gap-2">
-              <Mail size={20} /> devadtechnologies@gmail.com
-            </p>
-
-            <p className="flex items-center gap-2">
-              <Phone size={16} /> +234 810 655 1348, +234 803 508 0609
-            </p>
-
-            <p className="flex items-center gap-2">
-              <MapPin size={16} /> Rivers State, Nigeria
-            </p>
-          </div>
-        </div>
-
       </div>
-
-      {/* Bottom */}
-      <div className="border-t border-white/10 py-6 text-center text-sm text-gray-500">
-        © {new Date().getFullYear()} DEVAD Technologies. All rights reserved.
-      </div>
-
     </footer>
   );
 }
