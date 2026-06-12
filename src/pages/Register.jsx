@@ -532,11 +532,13 @@ export default function RegisterPage() {
               </span>
             </label>
 
-            {/* Submit button */}
+            {/* Submit button (Blurred & disabled if not agreed) */}
             <button
               type="submit"
-              disabled={loading}
-              className="w-full relative overflow-hidden rounded-xl py-3.5 font-bold text-sm tracking-widest transition-all duration-300 group mt-2"
+              disabled={loading || !agreed}
+              className={`w-full relative overflow-hidden rounded-xl py-3.5 font-bold text-sm tracking-widest transition-all duration-300 group mt-2 cursor-pointer ${
+                (!agreed || loading) ? "opacity-40 blur-[1px] pointer-events-none" : ""
+              }`}
               style={{
                 background: loading
                   ? "rgba(0,100,200,0.5)"
@@ -545,14 +547,14 @@ export default function RegisterPage() {
                 fontFamily: "'Orbitron', 'Rajdhani', sans-serif",
                 fontSize: "13px",
                 letterSpacing: "0.15em",
-                boxShadow: loading
+                boxShadow: (loading || !agreed)
                   ? "none"
                   : "0 0 30px rgba(0,150,255,0.4), 0 4px 15px rgba(0,100,255,0.3)",
                 transform: loading ? "scale(0.99)" : "scale(1)",
               }}
             >
               <div
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 cursor-pointer"
                 style={{
                   background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%)",
                   transform: "skewX(-20deg)",
@@ -573,7 +575,7 @@ export default function RegisterPage() {
                   <>
                     CREATE ACCOUNT
                     <svg
-                      className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
+                      className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1 cursor-pointer"
                       fill="none" viewBox="0 0 24 24" stroke="currentColor"
                     >
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
@@ -591,17 +593,26 @@ export default function RegisterPage() {
             <div className="flex-1 h-px bg-slate-800" />
           </div>
 
-          {/* New Managed SDK Google Component Integration */}
-          <div style={fadeIn(0.55)} className="w-full flex justify-center">
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={handleGoogleError}
-              text="continue_with"
-              theme="filled_dark"
-              shape="rectangular"
-              width="382px" // Matches the width profile of your custom inputs cleanly
-              containerProps={{ className: "w-full" }}
-            />
+          {/* New Managed SDK Google Component Integration (Blurred & unclickable if not agreed) */}
+          <div 
+            style={fadeIn(0.55)} 
+            className={`w-full flex justify-center min-h-[2px] cursor-pointer transition-all duration-300 ${
+              !agreed ? "opacity-40 blur-[1px] pointer-events-none" : ""
+            }`}
+          >
+            <div className="w-[350px] overflow-hidden rounded-xl bg-[#0b1426] flex justify-center">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                text="continue_with"
+                theme="filled_dark"
+                shape="rectangular"
+                width="350px"
+                containerProps={{ 
+                  style: { width: "350px", display: "flex", justifyContent: "center" } 
+                }}
+              />
+            </div>
           </div>
 
           {/* Sign in link */}
@@ -617,10 +628,10 @@ export default function RegisterPage() {
             <button
               type="button"
               onClick={() => navigate("/login")}
-              className="font-bold transition-all duration-200 hover:brightness-125"
+              className="font-bold transition-all duration-200 hover:brightness-125 cursor-pointer"
               style={{ color: "#38bdf8", fontFamily: "'Orbitron', sans-serif", fontSize: "12px" }}
             >
-              Sign in
+              Login in
             </button>
           </p>
 
@@ -656,9 +667,14 @@ export default function RegisterPage() {
           font-family: 'Rajdhani', sans-serif;
         }
 
+        /* Forces Google cross-origin identity iframe plates to mask perfectly over dark forms */
+        .GoogleLoginWrapper iframe {
+          background-color: transparent !important;
+          color-scheme: dark !important;
+        }
+
         * { -webkit-font-smoothing: antialiased; }
       `}</style>
     </div>
   );
 }
-
