@@ -134,32 +134,34 @@ export default function LoginPage() {
     setModal({ open: true, type, title, message });
 
   const closeModal = () => {
-    // Navigate to dashboard only after success modal is dismissed
-    if (modal.type === "success") {
+    // Save type before resetting state to safely handle redirect after success
+    const currentType = modal.type;
+    setModal((prev) => ({ ...prev, open: false }));
+    
+    if (currentType === "success") {
       navigate("/dashboard");
     }
-    setModal((prev) => ({ ...prev, open: false }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!email || !password) {
-      showModal("warning", "Missing fields", "Please enter your email and password.");
+      showModal("warning", "Missing Fields", "Please enter your email and password.");
       return;
     }
 
     try {
       setLoading(true);
-      showModal("loading", "Signing in…", "Please wait a moment.");
+      showModal("loading", "Signing In…", "Please wait a moment while we establish a secure connection.");
 
       await login({ email, password });
 
-      showModal("success", "Welcome back!", "You've signed in successfully.");
+      showModal("success", "Welcome Back!", "You've signed in successfully.");
     } catch (err) {
       const msg =
-        err.response?.data?.message || err.message || "Login failed. Please try again.";
-      showModal("error", "Sign in failed", msg);
+        err.response?.data?.message || err.message || "Login failed. Please verify your credentials and try again.";
+      showModal("error", "Sign In Failed", msg);
     } finally {
       setLoading(false);
     }
@@ -449,11 +451,12 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Forgot Password */}
+            {/* Forgot Password Link */}
             <div className="flex justify-end -mt-1">
               <button
                 type="button"
-                className="text-xs font-medium transition-all duration-200 hover:brightness-125"
+                onClick={() => navigate("/forgot-password")}
+                className="text-xs font-medium transition-all duration-200 hover:brightness-125 cursor-pointer"
                 style={{
                   color: "#38bdf8",
                   fontFamily: "'Rajdhani', sans-serif",
@@ -611,7 +614,7 @@ export default function LoginPage() {
               <button
                 key={name}
                 type="button"
-                className="flex items-center justify-center w-16 h-12 rounded-xl transition-all duration-300 hover:scale-105 active:scale-95"
+                className="flex items-center justify-center w-16 h-12 rounded-xl transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
                 style={{
                   background: "rgba(255,255,255,0.05)",
                   border: "1px solid rgba(100,150,255,0.2)",
@@ -635,7 +638,7 @@ export default function LoginPage() {
             ))}
           </div>
 
-          {/* Sign up link */}
+          {/* Register Link */}
           <p
             className="text-center text-sm mt-5"
             style={{
@@ -648,7 +651,8 @@ export default function LoginPage() {
             New here?{" "}
             <button
               type="button"
-              className="font-bold transition-all duration-200 hover:brightness-125"
+              onClick={() => navigate("/register")}
+              className="font-bold transition-all duration-200 hover:brightness-125 cursor-pointer"
               style={{
                 color: "#38bdf8",
                 fontFamily: "'Orbitron', sans-serif",
