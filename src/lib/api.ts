@@ -6,6 +6,7 @@ export const api = axios.create({
     "Content-Type": "application/json",
   },
   timeout: 30000,
+  withCredentials: true, // Needed if you use refresh-token cookies
 });
 
 // Request Interceptor
@@ -26,11 +27,15 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Only redirect on 401
     if (error.response?.status === 401) {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("user");
 
-      window.location.href = "/login";
+      // Avoid redirect loops
+      if (window.location.pathname !== "/login") {
+        window.location.href = "/login";
+      }
     }
 
     return Promise.reject(error);

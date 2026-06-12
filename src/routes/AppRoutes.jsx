@@ -9,6 +9,7 @@ import CareerPathsPage from "../pages/CareerPath";
 import AboutUs from "../pages/About";
 import ContactUs from "../pages/Contact";
 
+import RegisterPage from "../pages/Register";
 import LoginPage from "../pages/Login";
 
 export default function AppRoutes() {
@@ -24,6 +25,7 @@ export default function AppRoutes() {
           <Route path="/courses" element={<CoursesPage />} />
           <Route path="/courses/:slug" element={<CourseDetailPage />} />
           <Route path="/career-paths" element={<CareerPathsPage />} />
+          <Route path="register" element={<RegisterPage />} />
           <Route path="login" element={<LoginPage />} />
           <Route path="about" element={<AboutUs />} />
           <Route path="contact" element={<ContactUs />} />

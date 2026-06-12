@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import logo from "../assets/logo.png"
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import ResponseModal from "./ResponseModal"; // adjust path as needed
 
-// Particle component for background animation
 function Particles() {
   const canvasRef = useRef(null);
 
@@ -28,8 +29,6 @@ function Particles() {
 
     const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Draw connections
       particles.forEach((p, i) => {
         particles.slice(i + 1).forEach((p2) => {
           const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
@@ -43,20 +42,16 @@ function Particles() {
           }
         });
       });
-
-      // Draw particles
       particles.forEach((p) => {
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(0, 200, 255, ${p.alpha})`;
         ctx.fill();
-
         p.x += p.dx;
         p.y += p.dy;
         if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
         if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
       });
-
       animId = requestAnimationFrame(draw);
     };
 
@@ -76,7 +71,6 @@ function Particles() {
   );
 }
 
-// Circuit line SVG decorations
 function CircuitLines({ side }) {
   const isLeft = side === "left";
   return (
@@ -88,9 +82,11 @@ function CircuitLines({ side }) {
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        d={isLeft
-          ? "M200 50 H120 V150 H60 V250 H100 V350 H40 V450 H130 V550"
-          : "M0 80 H80 V180 H140 V280 H90 V380 H160 V480 H70 V560"}
+        d={
+          isLeft
+            ? "M200 50 H120 V150 H60 V250 H100 V350 H40 V450 H130 V550"
+            : "M0 80 H80 V180 H140 V280 H90 V380 H160 V480 H70 V560"
+        }
         stroke="#00b4ff"
         strokeWidth="1.5"
         strokeDasharray="6 4"
@@ -119,33 +115,87 @@ export default function LoginPage() {
   const [mounted, setMounted] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
 
+  // Modal state
+  const [modal, setModal] = useState({
+    open: false,
+    type: "info",
+    title: "",
+    message: "",
+  });
+
+  const navigate = useNavigate();
+  const { login } = useAuth();
+
   useEffect(() => {
     setTimeout(() => setMounted(true), 100);
   }, []);
 
-  const handleSubmit = (e) => {
+  const showModal = (type, title, message) =>
+    setModal({ open: true, type, title, message });
+
+  const closeModal = () => {
+    // Navigate to dashboard only after success modal is dismissed
+    if (modal.type === "success") {
+      navigate("/dashboard");
+    }
+    setModal((prev) => ({ ...prev, open: false }));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setTimeout(() => setLoading(false), 2000);
+
+    if (!email || !password) {
+      showModal("warning", "Missing fields", "Please enter your email and password.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      showModal("loading", "Signing in…", "Please wait a moment.");
+
+      await login({ email, password });
+
+      showModal("success", "Welcome back!", "You've signed in successfully.");
+    } catch (err) {
+      const msg =
+        err.response?.data?.message || err.message || "Login failed. Please try again.";
+      showModal("error", "Sign in failed", msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center relative overflow-hidden py-40"
-      style={{ background: "linear-gradient(135deg, #020b18 0%, #041428 40%, #061c35 70%, #030e1c 100%)" }}>
-
-      {/* Animated background */}
+    <div
+      className="min-h-screen w-full flex items-center justify-center relative overflow-hidden py-40"
+      style={{
+        background:
+          "linear-gradient(135deg, #020b18 0%, #041428 40%, #061c35 70%, #030e1c 100%)",
+      }}
+    >
       <Particles />
 
-      {/* Radial glow spots */}
       <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 1 }}>
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full opacity-10"
-          style={{ background: "radial-gradient(circle, #0066ff 0%, transparent 70%)", filter: "blur(40px)" }} />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full opacity-8"
-          style={{ background: "radial-gradient(circle, #00aaff 0%, transparent 70%)", filter: "blur(50px)" }} />
+        <div
+          className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full opacity-10"
+          style={{
+            background: "radial-gradient(circle, #0066ff 0%, transparent 70%)",
+            filter: "blur(40px)",
+          }}
+        />
+        <div
+          className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full opacity-8"
+          style={{
+            background: "radial-gradient(circle, #00aaff 0%, transparent 70%)",
+            filter: "blur(50px)",
+          }}
+        />
       </div>
 
-      {/* Circuit decorations */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 1 }}>
+      <div
+        className="fixed inset-0 pointer-events-none overflow-hidden"
+        style={{ zIndex: 1 }}
+      >
         <CircuitLines side="left" />
         <div className="absolute right-0 top-0 h-full w-64">
           <CircuitLines side="right" />
@@ -162,11 +212,11 @@ export default function LoginPage() {
           transition: "all 0.7s cubic-bezier(0.23, 1, 0.32, 1)",
         }}
       >
-        {/* Card glow border */}
         <div
           className="absolute -inset-0.5 rounded-2xl opacity-60"
           style={{
-            background: "linear-gradient(135deg, #0066ff44, #00d4ff33, #0066ff22)",
+            background:
+              "linear-gradient(135deg, #0066ff44, #00d4ff33, #0066ff22)",
             filter: "blur(1px)",
           }}
         />
@@ -174,65 +224,103 @@ export default function LoginPage() {
         <div
           className="relative rounded-2xl p-8 overflow-hidden"
           style={{
-            background: "linear-gradient(160deg, rgba(6,20,45,0.95) 0%, rgba(4,14,32,0.98) 100%)",
+            background:
+              "linear-gradient(160deg, rgba(6,20,45,0.95) 0%, rgba(4,14,32,0.98) 100%)",
             border: "1px solid rgba(0,180,255,0.25)",
-            boxShadow: "0 0 60px rgba(0,100,255,0.15), 0 25px 50px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)",
+            boxShadow:
+              "0 0 60px rgba(0,100,255,0.15), 0 25px 50px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)",
             backdropFilter: "blur(20px)",
           }}
         >
-          {/* Top shimmer line */}
-          <div className="absolute top-0 left-0 right-0 h-px"
-            style={{ background: "linear-gradient(90deg, transparent, rgba(0,200,255,0.6), transparent)" }} />
+          <div
+            className="absolute top-0 left-0 right-0 h-px"
+            style={{
+              background:
+                "linear-gradient(90deg, transparent, rgba(0,200,255,0.6), transparent)",
+            }}
+          />
 
-          {/* Welcome text */}
-          <div className="text-center mb-6"
+          <div
+            className="text-center mb-6"
             style={{
               transform: mounted ? "translateY(0)" : "translateY(10px)",
               opacity: mounted ? 1 : 0,
               transition: "all 0.8s cubic-bezier(0.23, 1, 0.32, 1) 0.25s",
-            }}>
-            <h2 className="text-xl font-bold"
+            }}
+          >
+            <h2
+              className="text-xl font-bold"
               style={{
                 background: "linear-gradient(90deg, #38bdf8, #60a5fa)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
                 backgroundClip: "text",
                 fontFamily: "'Orbitron', sans-serif",
-              }}>
+              }}
+            >
               Welcome Back!
             </h2>
-            <p className="text-sm mt-1" style={{ color: "rgba(180,210,255,0.65)" }}>
+            <p
+              className="text-sm mt-1"
+              style={{ color: "rgba(180,210,255,0.65)" }}
+            >
               Sign in to continue your learning journey
             </p>
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4"
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-4"
             style={{
               transform: mounted ? "translateY(0)" : "translateY(10px)",
               opacity: mounted ? 1 : 0,
               transition: "all 0.8s cubic-bezier(0.23, 1, 0.32, 1) 0.35s",
-            }}>
+            }}
+          >
             {/* Email field */}
             <div className="relative group">
-              <div className="absolute inset-0 rounded-xl transition-opacity duration-300"
+              <div
+                className="absolute inset-0 rounded-xl transition-opacity duration-300"
                 style={{
-                  background: "linear-gradient(135deg, #0066ff22, #00d4ff11)",
+                  background:
+                    "linear-gradient(135deg, #0066ff22, #00d4ff11)",
                   opacity: focusedField === "email" ? 1 : 0,
                   border: "1px solid rgba(0,180,255,0.4)",
                   borderRadius: "12px",
-                }} />
-              <div className="relative flex items-center rounded-xl overflow-hidden"
+                }}
+              />
+              <div
+                className="relative flex items-center rounded-xl overflow-hidden"
                 style={{
                   background: "rgba(255,255,255,0.04)",
-                  border: `1px solid ${focusedField === "email" ? "rgba(0,180,255,0.5)" : "rgba(100,150,255,0.15)"}`,
+                  border: `1px solid ${
+                    focusedField === "email"
+                      ? "rgba(0,180,255,0.5)"
+                      : "rgba(100,150,255,0.15)"
+                  }`,
                   transition: "border-color 0.3s",
-                }}>
+                }}
+              >
                 <div className="pl-4 pr-3 flex items-center">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                    style={{ color: focusedField === "email" ? "#38bdf8" : "rgba(150,180,255,0.5)", transition: "color 0.3s" }}>
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    style={{
+                      color:
+                        focusedField === "email"
+                          ? "#38bdf8"
+                          : "rgba(150,180,255,0.5)",
+                      transition: "color 0.3s",
+                    }}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    />
                   </svg>
                 </div>
                 <input
@@ -255,24 +343,48 @@ export default function LoginPage() {
 
             {/* Password field */}
             <div className="relative group">
-              <div className="absolute inset-0 rounded-xl transition-opacity duration-300"
+              <div
+                className="absolute inset-0 rounded-xl transition-opacity duration-300"
                 style={{
-                  background: "linear-gradient(135deg, #0066ff22, #00d4ff11)",
+                  background:
+                    "linear-gradient(135deg, #0066ff22, #00d4ff11)",
                   opacity: focusedField === "password" ? 1 : 0,
                   border: "1px solid rgba(0,180,255,0.4)",
                   borderRadius: "12px",
-                }} />
-              <div className="relative flex items-center rounded-xl overflow-hidden"
+                }}
+              />
+              <div
+                className="relative flex items-center rounded-xl overflow-hidden"
                 style={{
                   background: "rgba(255,255,255,0.04)",
-                  border: `1px solid ${focusedField === "password" ? "rgba(0,180,255,0.5)" : "rgba(100,150,255,0.15)"}`,
+                  border: `1px solid ${
+                    focusedField === "password"
+                      ? "rgba(0,180,255,0.5)"
+                      : "rgba(100,150,255,0.15)"
+                  }`,
                   transition: "border-color 0.3s",
-                }}>
+                }}
+              >
                 <div className="pl-4 pr-3 flex items-center">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                    style={{ color: focusedField === "password" ? "#38bdf8" : "rgba(150,180,255,0.5)", transition: "color 0.3s" }}>
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    style={{
+                      color:
+                        focusedField === "password"
+                          ? "#38bdf8"
+                          : "rgba(150,180,255,0.5)",
+                      transition: "color 0.3s",
+                    }}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                    />
                   </svg>
                 </div>
                 <input
@@ -290,20 +402,47 @@ export default function LoginPage() {
                     letterSpacing: "0.02em",
                   }}
                 />
-                <button type="button" onClick={() => setShowPass(!showPass)}
+                <button
+                  type="button"
+                  onClick={() => setShowPass(!showPass)}
                   className="px-4 flex items-center transition-colors duration-200"
-                  style={{ color: showPass ? "#38bdf8" : "rgba(150,180,255,0.5)" }}>
+                  style={{
+                    color: showPass ? "#38bdf8" : "rgba(150,180,255,0.5)",
+                  }}
+                >
                   {showPass ? (
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                      />
                     </svg>
                   ) : (
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                      />
                     </svg>
                   )}
                 </button>
@@ -312,13 +451,15 @@ export default function LoginPage() {
 
             {/* Forgot Password */}
             <div className="flex justify-end -mt-1">
-              <button type="button"
+              <button
+                type="button"
                 className="text-xs font-medium transition-all duration-200 hover:brightness-125"
                 style={{
                   color: "#38bdf8",
                   fontFamily: "'Rajdhani', sans-serif",
                   letterSpacing: "0.03em",
-                }}>
+                }}
+              >
                 Forgot Password?
               </button>
             </div>
@@ -336,34 +477,60 @@ export default function LoginPage() {
                 fontFamily: "'Orbitron', 'Rajdhani', sans-serif",
                 fontSize: "13px",
                 letterSpacing: "0.15em",
-                boxShadow: loading ? "none" : "0 0 30px rgba(0,150,255,0.4), 0 4px 15px rgba(0,100,255,0.3)",
+                boxShadow: loading
+                  ? "none"
+                  : "0 0 30px rgba(0,150,255,0.4), 0 4px 15px rgba(0,100,255,0.3)",
                 transform: loading ? "scale(0.99)" : "scale(1)",
               }}
             >
-              {/* Shimmer effect */}
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+              <div
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                 style={{
-                  background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%)",
+                  background:
+                    "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%)",
                   transform: "skewX(-20deg)",
                   animation: "shimmer 1.5s infinite",
-                }} />
-
+                }}
+              />
               <span className="relative flex items-center justify-center gap-3">
                 {loading ? (
                   <>
-                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    <svg
+                      className="w-4 h-4 animate-spin"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      />
                     </svg>
                     SIGNING IN...
                   </>
                 ) : (
                   <>
                     SIGN IN
-                    <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
-                      fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    <svg
+                      className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 7l5 5m0 0l-5 5m5-5H6"
+                      />
                     </svg>
                   </>
                 )}
@@ -372,22 +539,43 @@ export default function LoginPage() {
           </form>
 
           {/* Divider */}
-          <div className="flex items-center gap-4 my-5"
-            style={{
-              opacity: mounted ? 1 : 0,
-              transition: "opacity 0.8s 0.5s",
-            }}>
-            <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(100,150,255,0.2))" }} />
-            <span className="text-xs font-semibold tracking-widest" style={{ color: "rgba(150,180,255,0.45)", fontFamily: "'Orbitron', sans-serif" }}>OR</span>
-            <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, rgba(100,150,255,0.2), transparent)" }} />
+          <div
+            className="flex items-center gap-4 my-5"
+            style={{ opacity: mounted ? 1 : 0, transition: "opacity 0.8s 0.5s" }}
+          >
+            <div
+              className="flex-1 h-px"
+              style={{
+                background:
+                  "linear-gradient(90deg, transparent, rgba(100,150,255,0.2))",
+              }}
+            />
+            <span
+              className="text-xs font-semibold tracking-widest"
+              style={{
+                color: "rgba(150,180,255,0.45)",
+                fontFamily: "'Orbitron', sans-serif",
+              }}
+            >
+              OR
+            </span>
+            <div
+              className="flex-1 h-px"
+              style={{
+                background:
+                  "linear-gradient(90deg, rgba(100,150,255,0.2), transparent)",
+              }}
+            />
           </div>
 
           {/* OAuth Buttons */}
-          <div className="flex justify-center gap-4"
+          <div
+            className="flex justify-center gap-4"
             style={{
               opacity: mounted ? 1 : 0,
               transition: "opacity 0.8s 0.55s",
-            }}>
+            }}
+          >
             {[
               {
                 name: "Google",
@@ -432,12 +620,14 @@ export default function LoginPage() {
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = "rgba(0,100,255,0.12)";
                   e.currentTarget.style.borderColor = "rgba(0,180,255,0.4)";
-                  e.currentTarget.style.boxShadow = "0 0 15px rgba(0,150,255,0.2)";
+                  e.currentTarget.style.boxShadow =
+                    "0 0 15px rgba(0,150,255,0.2)";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.background = "rgba(255,255,255,0.05)";
                   e.currentTarget.style.borderColor = "rgba(100,150,255,0.2)";
-                  e.currentTarget.style.boxShadow = "0 2px 10px rgba(0,0,0,0.3)";
+                  e.currentTarget.style.boxShadow =
+                    "0 2px 10px rgba(0,0,0,0.3)";
                 }}
               >
                 {icon}
@@ -446,28 +636,51 @@ export default function LoginPage() {
           </div>
 
           {/* Sign up link */}
-          <p className="text-center text-sm mt-5"
+          <p
+            className="text-center text-sm mt-5"
             style={{
               color: "rgba(150,180,255,0.55)",
               fontFamily: "'Rajdhani', sans-serif",
               opacity: mounted ? 1 : 0,
               transition: "opacity 0.8s 0.65s",
-            }}>
+            }}
+          >
             New here?{" "}
-            <button type="button"
+            <button
+              type="button"
               className="font-bold transition-all duration-200 hover:brightness-125"
-              style={{ color: "#38bdf8", fontFamily: "'Orbitron', sans-serif", fontSize: "12px" }}>
+              style={{
+                color: "#38bdf8",
+                fontFamily: "'Orbitron', sans-serif",
+                fontSize: "12px",
+              }}
+            >
               Create an account
             </button>
           </p>
 
-          {/* Bottom shimmer */}
-          <div className="absolute bottom-0 left-0 right-0 h-px"
-            style={{ background: "linear-gradient(90deg, transparent, rgba(0,150,255,0.3), transparent)" }} />
+          <div
+            className="absolute bottom-0 left-0 right-0 h-px"
+            style={{
+              background:
+                "linear-gradient(90deg, transparent, rgba(0,150,255,0.3), transparent)",
+            }}
+          />
         </div>
       </div>
 
-      {/* Google Fonts */}
+      {/* Response Modal */}
+      <ResponseModal
+        open={modal.open}
+        type={modal.type}
+        title={modal.title}
+        message={modal.message}
+        buttonText="Continue"
+        showClose={false}
+        disableBackdropClose={modal.type === "loading"}
+        onClose={closeModal}
+      />
+
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap');
 
