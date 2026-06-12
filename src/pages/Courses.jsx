@@ -62,7 +62,7 @@ export default function CoursesPage({ onNavigate }) {
       <FeaturedCourses courses={COURSES} onNavigate={onNavigate} />
 
       {/* <StudentSuccessStories testimonials={TESTIMONIALS} /> */}
-      <CoursesFAQ />
+      {/* <CoursesFAQ /> */}
     </div>
   );
 }
