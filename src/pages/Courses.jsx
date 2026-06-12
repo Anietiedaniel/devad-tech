@@ -4,7 +4,7 @@ import CoursesHero from "../sections/coursesSections/coursesHero";
 import CourseGrid from "../sections/coursesSections/courseGrid";
 import FeaturedCourses from "../sections/coursesSections/featured";
 // import StudentSuccessStories from "./StudentSuccessStories";
-import CoursesFAQ from "../sections/coursesSections/Coursefaq";
+// import CoursesFAQ from "../sections/coursesSections/Coursefaq";
 // import CoursesFooterCTA from "./CoursesFooterCTA";
 
 // Usage with your own router:
