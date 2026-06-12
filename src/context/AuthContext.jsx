@@ -3,27 +3,14 @@ import {
   useContext,
   useEffect,
   useState,
-  type ReactNode, // Fixed: Explicitly imported as a type
 } from "react";
 
-import { User } from "../types/auth";
+const AuthContext = createContext(undefined);
 
-interface AuthContextType {
-  user: User | null;
-  accessToken: string | null;
-  isAuthenticated: boolean;
-  isLoading: boolean; // Added: Prevents layout flashing on initial load
-  login: (accessToken: string, user: User) => void;
-  logout: () => void;
-  updateUser: (user: User) => void;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true); // Added loading state
+export const AuthProvider = ({ children }) => {
+  const [accessToken, setAccessToken] = useState(null);
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     try {
@@ -40,11 +27,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       console.error("Failed to restore auth session:", error);
     } finally {
-      setIsLoading(false); // Done checking localStorage
+      setIsLoading(false);
     }
   }, []);
 
-  const login = (token: string, userData: User) => {
+  const login = (token, userData) => {
     localStorage.setItem("accessToken", token);
     localStorage.setItem("user", JSON.stringify(userData));
 
@@ -60,7 +47,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
   };
 
-  const updateUser = (userData: User) => {
+  const updateUser = (userData) => {
     localStorage.setItem("user", JSON.stringify(userData));
     setUser(userData);
   };
@@ -71,7 +58,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         user,
         accessToken,
         isAuthenticated: !!accessToken,
-        isLoading, // Exposed to your components
+        isLoading,
         login,
         logout,
         updateUser,
