@@ -165,7 +165,7 @@ function InputField({ id, type = "text", placeholder, value, onChange, icon, foc
 
 const ICONS = {
   user: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />,
-  email: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />,
+  email: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 00-2-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />,
   lock: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />,
 };
 
@@ -183,38 +183,52 @@ function EyeIcon({ open }) {
   );
 }
 
+// FIXED: Displays live explicit criteria updates as the user is typing
 function StrengthBar({ password }) {
-  const getStrength = (pw) => {
-    let score = 0;
-    if (pw.length >= 6) score++;
-    if (/[A-Z]/.test(pw)) score++;
-    if (/[0-9]/.test(pw)) score++;
-    if (/[^A-Za-z0-9]/.test(pw)) score++;
-    return score;
-  };
+  const criteria = [
+    { label: "At least 6 characters", met: password.length >= 6 },
+    { label: "Uppercase letter (A-Z)", met: /[A-Z]/.test(password) },
+    { label: "Lowercase letter (a-z)", met: /[a-z]/.test(password) },
+    { label: "Number (0-9)", met: /[0-9]/.test(password) },
+    { label: "Special symbol (@, #, $, etc.)", met: /[^A-Za-z0-9]/.test(password) },
+  ];
 
-  const score = getStrength(password);
-  const labels = ["", "Weak", "Fair", "Good", "Strong"];
-  const colors = ["", "#ef4444", "#f59e0b", "#38bdf8", "#22c55e"];
+  const metCount = criteria.filter(c => c.met).length;
+  const labels = ["Empty", "Weak", "Fair", "Good", "Strong"];
+  const colors = ["rgba(100,150,255,0.15)", "#ef4444", "#f59e0b", "#38bdf8", "#22c55e"];
 
   if (!password) return null;
 
   return (
-    <div className="mt-2 px-1">
-      <div className="flex gap-1 mb-1">
+    <div className="mt-2 px-1 space-y-2">
+      {/* Visual Bar Indicators */}
+      <div className="flex gap-1">
         {[1, 2, 3, 4].map((i) => (
           <div
             key={i}
             className="flex-1 h-1 rounded-full transition-all duration-300"
             style={{
-              background: i <= score ? colors[score] : "rgba(100,150,255,0.15)",
+              background: i <= metCount - 1 && metCount > 1 ? colors[metCount - 1] : "rgba(100,150,255,0.15)",
             }}
           />
         ))}
       </div>
-      <p className="text-xs" style={{ color: colors[score], fontFamily: "'Rajdhani', sans-serif" }}>
-        {labels[score]}
-      </p>
+      
+      <div className="flex justify-between items-center">
+        <span className="text-xs font-semibold" style={{ color: colors[metCount === 0 ? 1 : metCount - 1], fontFamily: "'Rajdhani', sans-serif" }}>
+          Strength: {labels[metCount === 0 ? 1 : metCount - 1]}
+        </span>
+      </div>
+
+      {/* Checklist items */}
+      <div className="pt-1 grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-1 text-[11px]" style={{ fontFamily: "'Rajdhani', sans-serif" }}>
+        {criteria.map((c, index) => (
+          <div key={index} className="flex items-center gap-1.5 transition-colors duration-200" style={{ color: c.met ? "#22c55e" : "rgba(150,180,255,0.4)" }}>
+            <span>{c.met ? "✓" : "○"}</span>
+            <span>{c.label}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -281,6 +295,7 @@ export default function RegisterPage() {
     showModal("error", "Sign In Failed", genericError);
   };
 
+  // FIXED: Explicitly checks for length, uppercase, lowercase, numbers, and symbols before allowing submissions
   const validate = () => {
     const { fullName, email, password, confirmPassword } = form;
     if (!fullName || !email || !password || !confirmPassword) {
@@ -293,6 +308,22 @@ export default function RegisterPage() {
     }
     if (password.length < 6) {
       showModal("warning", "Weak password", "Password must be at least 6 characters.");
+      return false;
+    }
+    if (!/[A-Z]/.test(password)) {
+      showModal("warning", "Password Criteria Missing", "Password must contain at least one uppercase letter.");
+      return false;
+    }
+    if (!/[a-z]/.test(password)) {
+      showModal("warning", "Password Criteria Missing", "Password must contain at least one lowercase letter.");
+      return false;
+    }
+    if (!/[0-9]/.test(password)) {
+      showModal("warning", "Password Criteria Missing", "Password must contain at least one base-10 digit numerical character.");
+      return false;
+    }
+    if (!/[^A-Za-z0-9]/.test(password)) {
+      showModal("warning", "Password Criteria Missing", "Password must contain at least one special symbol component.");
       return false;
     }
     if (password !== confirmPassword) {
@@ -532,7 +563,7 @@ export default function RegisterPage() {
               </span>
             </label>
 
-            {/* Submit button (Blurred & disabled if not agreed) */}
+            {/* Submit button */}
             <button
               type="submit"
               disabled={loading || !agreed}
@@ -593,7 +624,7 @@ export default function RegisterPage() {
             <div className="flex-1 h-px bg-slate-800" />
           </div>
 
-          {/* New Managed SDK Google Component Integration (Blurred & unclickable if not agreed) */}
+          {/* Google Component */}
           <div 
             style={fadeIn(0.55)} 
             className={`w-full flex justify-center min-h-[2px] cursor-pointer transition-all duration-300 ${
@@ -667,7 +698,6 @@ export default function RegisterPage() {
           font-family: 'Rajdhani', sans-serif;
         }
 
-        /* Forces Google cross-origin identity iframe plates to mask perfectly over dark forms */
         .GoogleLoginWrapper iframe {
           background-color: transparent !important;
           color-scheme: dark !important;
