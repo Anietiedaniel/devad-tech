@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { GoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../services/auth.service";
 import ResponseModal from "../components/ResponseModal";
@@ -107,7 +108,6 @@ function CircuitLines({ side }) {
   );
 }
 
-// Reusable input field
 function InputField({ id, type = "text", placeholder, value, onChange, icon, focusedField, setFocusedField, rightSlot }) {
   return (
     <div className="relative group">
@@ -167,7 +167,6 @@ const ICONS = {
   user: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />,
   email: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />,
   lock: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />,
-  phone: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />,
 };
 
 function EyeIcon({ open }) {
@@ -184,11 +183,10 @@ function EyeIcon({ open }) {
   );
 }
 
-// Password strength meter
 function StrengthBar({ password }) {
   const getStrength = (pw) => {
     let score = 0;
-    if (pw.length >= 8) score++;
+    if (pw.length >= 6) score++;
     if (/[A-Z]/.test(pw)) score++;
     if (/[0-9]/.test(pw)) score++;
     if (/[^A-Za-z0-9]/.test(pw)) score++;
@@ -223,10 +221,8 @@ function StrengthBar({ password }) {
 
 export default function RegisterPage() {
   const [form, setForm] = useState({
-    firstName: "",
-    lastName: "",
+    fullName: "",
     email: "",
-    phone: "",
     password: "",
     confirmPassword: "",
   });
@@ -236,6 +232,7 @@ export default function RegisterPage() {
   const [mounted, setMounted] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
   const [agreed, setAgreed] = useState(false);
+  const [error, setError] = useState([]);
 
   const [modal, setModal] = useState({
     open: false,
@@ -256,22 +253,46 @@ export default function RegisterPage() {
     setModal({ open: true, type, title, message });
 
   const closeModal = () => {
-    if (modal.type === "success") navigate("/login");
+    if (modal.type === "success") navigate("/dashboard");
     setModal((prev) => ({ ...prev, open: false }));
   };
 
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      const googleToken = credentialResponse.credential;
+      if (!googleToken) return;
+
+      showModal("loading", "Authenticating...", "Verifying secure credentials with Google.");
+
+      await authService.googleLogin(googleToken);
+
+      showModal("success", "Welcome!", "Login successful. Redirecting to your workspace.");
+    } catch (err) {
+      console.error("Google Auth execution failed:", err);
+      const errMsg = err.response?.data?.message || "Google sign-in verification failed.";
+      setError([errMsg]);
+      showModal("error", "Authentication Failed", errMsg);
+    }
+  };
+
+  const handleGoogleError = () => {
+    const genericError = "Google handshake initialization failed.";
+    setError([genericError]);
+    showModal("error", "Sign In Failed", genericError);
+  };
+
   const validate = () => {
-    const { firstName, lastName, email, password, confirmPassword } = form;
-    if (!firstName || !lastName || !email || !password || !confirmPassword) {
-      showModal("warning", "Missing fields", "Please fill in all required fields.");
+    const { fullName, email, password, confirmPassword } = form;
+    if (!fullName || !email || !password || !confirmPassword) {
+      showModal("warning", "Missing fields", "Please fill in all fields.");
       return false;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       showModal("warning", "Invalid email", "Please enter a valid email address.");
       return false;
     }
-    if (password.length < 8) {
-      showModal("warning", "Weak password", "Password must be at least 8 characters.");
+    if (password.length < 6) {
+      showModal("warning", "Weak password", "Password must be at least 6 characters.");
       return false;
     }
     if (password !== confirmPassword) {
@@ -294,10 +315,8 @@ export default function RegisterPage() {
       showModal("loading", "Creating account…", "Please wait a moment.");
 
       await authService.register({
-        firstName: form.firstName,
-        lastName: form.lastName,
+        fullName: form.fullName,
         email: form.email,
-        phone: form.phone || undefined,
         password: form.password,
       });
 
@@ -329,7 +348,7 @@ export default function RegisterPage() {
 
   return (
     <div
-      className="min-h-screen w-full flex items-center justify-center relative overflow-hidden py-16"
+      className="min-h-screen w-full flex items-center justify-center relative overflow-hidden py-16 mt-32"
       style={{
         background: "linear-gradient(135deg, #020b18 0%, #041428 40%, #061c35 70%, #030e1c 100%)",
       }}
@@ -398,27 +417,16 @@ export default function RegisterPage() {
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4" style={fadeIn(0.35)}>
 
-            {/* First + Last name row */}
-            <div className="grid grid-cols-2 gap-3">
-              <InputField
-                id="firstName"
-                placeholder="First name"
-                value={form.firstName}
-                onChange={set("firstName")}
-                focusedField={focusedField}
-                setFocusedField={setFocusedField}
-                icon={ICONS.user}
-              />
-              <InputField
-                id="lastName"
-                placeholder="Last name"
-                value={form.lastName}
-                onChange={set("lastName")}
-                focusedField={focusedField}
-                setFocusedField={setFocusedField}
-                icon={ICONS.user}
-              />
-            </div>
+            {/* Full Name input */}
+            <InputField
+              id="fullName"
+              placeholder="Full name"
+              value={form.fullName}
+              onChange={set("fullName")}
+              focusedField={focusedField}
+              setFocusedField={setFocusedField}
+              icon={ICONS.user}
+            />
 
             {/* Email */}
             <InputField
@@ -430,18 +438,6 @@ export default function RegisterPage() {
               focusedField={focusedField}
               setFocusedField={setFocusedField}
               icon={ICONS.email}
-            />
-
-            {/* Phone (optional) */}
-            <InputField
-              id="phone"
-              type="tel"
-              placeholder="Phone number (optional)"
-              value={form.phone}
-              onChange={set("phone")}
-              focusedField={focusedField}
-              setFocusedField={setFocusedField}
-              icon={ICONS.phone}
             />
 
             {/* Password */}
@@ -588,6 +584,26 @@ export default function RegisterPage() {
             </button>
           </form>
 
+          {/* Divider */}
+          <div className="flex items-center my-5" style={fadeIn(0.45)}>
+            <div className="flex-1 h-px bg-slate-800" />
+            <span className="px-3 text-xs tracking-wider" style={{ color: "rgba(150,180,255,0.35)", fontFamily: "'Orbitron', sans-serif" }}>OR</span>
+            <div className="flex-1 h-px bg-slate-800" />
+          </div>
+
+          {/* New Managed SDK Google Component Integration */}
+          <div style={fadeIn(0.55)} className="w-full flex justify-center">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleError}
+              text="continue_with"
+              theme="filled_dark"
+              shape="rectangular"
+              width="382px" // Matches the width profile of your custom inputs cleanly
+              containerProps={{ className: "w-full" }}
+            />
+          </div>
+
           {/* Sign in link */}
           <p
             className="text-center text-sm mt-5"
@@ -645,3 +661,4 @@ export default function RegisterPage() {
     </div>
   );
 }
+

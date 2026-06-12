@@ -57,6 +57,29 @@ export const authService = {
   },
 
   // =========================
+  // GOOGLE AUTHENTICATION
+  // =========================
+  async googleLogin(token: string) {
+    const { data } = await api.post<AuthResponse>(
+      "/api/auth/google",
+      { token } // Passes the key expected by your backend 'googleAuth' controller
+    );
+
+    // Persist your internal session access data
+    localStorage.setItem(
+      "accessToken",
+      data.accessToken
+    );
+
+    localStorage.setItem(
+      "user",
+      JSON.stringify(data.user)
+    );
+
+    return data;
+  },
+
+  // =========================
   // FORGOT PASSWORD
   // =========================
   async forgotPassword(
