@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import ResponseModal from "./ResponseModal"; // adjust path as needed
+import ResponseModal from "../components/ResponseModal"; // adjust path as needed
 
 function Particles() {
   const canvasRef = useRef(null);
