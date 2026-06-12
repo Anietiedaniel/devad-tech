@@ -348,7 +348,7 @@ export default function RegisterPage() {
 
   return (
     <div
-      className="min-h-screen w-full flex items-center justify-center relative overflow-hidden py-16 mt-32"
+      className="min-h-screen w-full flex items-center justify-center relative overflow-hidden py-24"
       style={{
         background: "linear-gradient(135deg, #020b18 0%, #041428 40%, #061c35 70%, #030e1c 100%)",
       }}
