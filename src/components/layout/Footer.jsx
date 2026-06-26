@@ -45,7 +45,7 @@ const quickLinks = [
 
 const socialLinks = [
   { icon: FaFacebookF, href: "#",                            label: "Facebook" },
-  { icon: FaInstagram, href: "#",                            label: "Instagram" },
+  { icon: FaInstagram, href: "https://www.instagram.com/devadtechnologies",                            label: "Instagram" },
   { icon: FaXTwitter,  href: "#",                            label: "X" },
   { icon: FaYoutube,   href: "#",                            label: "YouTube" },
   { icon: FaWhatsapp,  href: "https://wa.me/2348106551348",  label: "WhatsApp" },
