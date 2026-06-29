@@ -9,6 +9,7 @@ import AboutUs from "../pages/About";
 import ContactUs from "../pages/Contact";
 import RegisterPage from "../pages/Register";
 import LoginPage from "../pages/Login";
+import ForgotPasswordPage from "../pages/ForgotPassword";
 import VerifyEmailPage from "../pages/VerifyEmail";
 
 export default function AppRoutes() {
@@ -18,6 +19,7 @@ export default function AppRoutes() {
       <Routes>
         {/* Auth standalone pages */}
         <Route path="verify-email/:token" element={<VerifyEmailPage />} />
+        <Route path="forgot-password" element={<ForgotPasswordPage />} />
 
         {/* Main site with layout */}
         <Route path="/" element={<MainLayout />}>
