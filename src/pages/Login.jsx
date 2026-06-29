@@ -2,25 +2,24 @@ import { useState, useEffect, useRef } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { authService } from "../services/auth.service";
 import ResponseModal from "../components/ResponseModal";
 
+// ─── Particles ────────────────────────────────────────────────────────────────
 function Particles() {
   const canvasRef = useRef(null);
-
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     let animId;
-
     const resize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
     resize();
     window.addEventListener("resize", resize);
-
     const particles = Array.from({ length: 80 }, () => ({
       x: Math.random() * window.innerWidth,
       y: Math.random() * window.innerHeight,
@@ -29,7 +28,6 @@ function Particles() {
       dy: (Math.random() - 0.5) * 0.4,
       alpha: Math.random() * 0.6 + 0.2,
     }));
-
     const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       particles.forEach((p, i) => {
@@ -57,14 +55,12 @@ function Particles() {
       });
       animId = requestAnimationFrame(draw);
     };
-
     draw();
     return () => {
       cancelAnimationFrame(animId);
       window.removeEventListener("resize", resize);
     };
   }, []);
-
   return (
     <canvas
       ref={canvasRef}
@@ -74,6 +70,7 @@ function Particles() {
   );
 }
 
+// ─── Circuit Lines ────────────────────────────────────────────────────────────
 function CircuitLines({ side }) {
   const isLeft = side === "left";
   return (
@@ -110,6 +107,7 @@ function CircuitLines({ side }) {
   );
 }
 
+// ─── Input Field ──────────────────────────────────────────────────────────────
 function InputField({ id, type = "text", placeholder, value, onChange, icon, focusedField, setFocusedField, rightSlot }) {
   return (
     <div className="relative group">
@@ -174,32 +172,27 @@ function EyeIcon({ open }) {
   return open ? (
     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268-2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
     </svg>
   ) : (
     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268-2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
     </svg>
   );
 }
 
+// ─── Main Page ────────────────────────────────────────────────────────────────
 export default function LoginPage() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
-
-  const [modal, setModal] = useState({
-    open: false,
-    type: "info",
-    title: "",
-    message: "",
-  });
+  const [modal, setModal] = useState({ open: false, type: "info", title: "", message: "" });
 
   const navigate = useNavigate();
-  const { login, googleLogin } = useAuth(); 
+  const { login } = useAuth(); // login(token, userData) — just a state setter
 
   useEffect(() => {
     setTimeout(() => setMounted(true), 100);
@@ -211,89 +204,64 @@ export default function LoginPage() {
     setModal({ open: true, type, title, message });
 
   const closeModal = () => {
-    const currentType = modal.type;
+    if (modal.type === "success") navigate("/dashboard");
     setModal((prev) => ({ ...prev, open: false }));
-
-    if (currentType === "success") {
-      navigate("/dashboard");
-    }
-  };
-
-  const handleGoogleSuccess = async (credentialResponse) => {
-    try {
-      const googleToken = credentialResponse.credential;
-      if (!googleToken) return;
-
-      showModal("loading", "Authenticating...", "Verifying secure credentials with Google.");
-
-      if (!googleLogin) {
-        throw new Error("Google Authentication method is uninitialized in context.");
-      }
-
-      // Capture the auth context payload response directly
-      const session = await googleLogin(googleToken);
-      
-      // If your context returns false or undefined tokens on background network failures, intercept it
-      if (session === false) {
-        throw new Error("Handshake authorized but security token validation dropped.");
-      }
-
-      showModal("success", "Welcome Back!", "Login successful. Redirecting to your workspace.");
-    } catch (err) {
-      console.error("Google Auth execution failed:", err);
-      const errMsg = err.response?.data?.message || err.message || "Google sign-in verification failed.";
-      showModal("error", "Authentication Failed", errMsg);
-    }
-  };
-
-  const handleGoogleError = () => {
-    showModal("error", "Sign In Failed", "Google handshake initialization failed.");
   };
 
   const validate = () => {
     const { email, password } = form;
     if (!email) {
-      showModal("warning", "Missing field", "Please fill in your email address.");
+      showModal("warning", "Missing Field", "Please enter your email address.");
       return false;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      showModal("warning", "Invalid email", "Please enter a valid email address.");
+      showModal("warning", "Invalid Email", "Please enter a valid email address.");
       return false;
     }
     if (!password) {
-      showModal("warning", "Missing field", "Please fill in your password.");
+      showModal("warning", "Missing Field", "Please enter your password.");
       return false;
     }
     return true;
   };
 
+  // 1. authService.login() hits the backend
+  // 2. login() from useAuth updates context state + localStorage
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
-
     try {
       setLoading(true);
-      showModal("loading", "Signing In…", "Please wait a moment while we establish a secure connection.");
-      
-      // Await your context engine execution pipeline
-      const result = await login({
-        email: form.email,
-        password: form.password,
-      });
-
-      // Defensive Check: If your backend returns 200 but context execution properties indicate failure
-      if (result === false) {
-        throw new Error("Authentication succeeded but session state context initialization failed.");
-      }
-
-      showModal("success", "Welcome Back!", "You've signed in successfully.");
+      showModal("loading", "Signing In…", "Please wait a moment.");
+      const result = await authService.login({ email: form.email, password: form.password });
+      login(result.accessToken, result.user);
+      showModal("success", "Welcome Back!", "You have signed in successfully.");
     } catch (err) {
-      console.error("Login verification breakdown:", err);
-      const msg = err.response?.data?.message || err.message || "Operation failed. Please verify entry variables.";
-      showModal("error", "Execution Terminated", msg);
+      const msg = err.response?.data?.message || err.message || "Login failed. Please try again.";
+      showModal("error", "Sign In Failed", msg);
     } finally {
       setLoading(false);
     }
+  };
+
+  // 1. authService.googleLogin() hits the backend
+  // 2. login() from useAuth updates context state + localStorage
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      const googleToken = credentialResponse.credential;
+      if (!googleToken) return;
+      showModal("loading", "Authenticating…", "Verifying your Google credentials.");
+      const result = await authService.googleLogin(googleToken);
+      login(result.accessToken, result.user);
+      showModal("success", "Welcome Back!", "Google sign-in successful.");
+    } catch (err) {
+      const msg = err.response?.data?.message || err.message || "Google sign-in failed.";
+      showModal("error", "Authentication Failed", msg);
+    }
+  };
+
+  const handleGoogleError = () => {
+    showModal("error", "Sign In Failed", "Google sign-in could not be completed. Please try again.");
   };
 
   const cardStyle = {
@@ -370,7 +338,7 @@ export default function LoginPage() {
               Welcome Back
             </h2>
             <p className="text-sm mt-1" style={{ color: "rgba(180,210,255,0.65)" }}>
-              Secure access panel to your console
+              Sign in to continue your learning journey
             </p>
           </div>
 
@@ -408,13 +376,12 @@ export default function LoginPage() {
                   </button>
                 }
               />
-              
               <div className="text-right px-1">
                 <button
                   type="button"
                   onClick={() => navigate("/forgot-password")}
-                  className="font-bold transition-all duration-200 hover:brightness-125 cursor-pointer opacity-80 hover:opacity-100"
-                  style={{ color: "#38bdf8", fontFamily: "'Orbitron', sans-serif", fontSize: "11px", letterSpacing: "0.05em" }}
+                  className="font-bold transition-all duration-200 hover:brightness-125 cursor-pointer"
+                  style={{ color: "#38bdf8", fontFamily: "'Orbitron', sans-serif", fontSize: "11px" }}
                 >
                   Forgot Password?
                 </button>
@@ -433,9 +400,7 @@ export default function LoginPage() {
                 fontFamily: "'Orbitron', 'Rajdhani', sans-serif",
                 fontSize: "13px",
                 letterSpacing: "0.15em",
-                boxShadow: loading
-                  ? "none"
-                  : "0 0 30px rgba(0,150,255,0.4), 0 4px 15px rgba(0,100,255,0.3)",
+                boxShadow: loading ? "none" : "0 0 30px rgba(0,150,255,0.4), 0 4px 15px rgba(0,100,255,0.3)",
                 transform: loading ? "scale(0.99)" : "scale(1)",
               }}
             >
@@ -453,7 +418,7 @@ export default function LoginPage() {
                       <path className="opacity-75" fill="currentColor"
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                     </svg>
-                    AUTHORIZING ACCESS...
+                    SIGNING IN...
                   </>
                 ) : (
                   <>
@@ -470,15 +435,16 @@ export default function LoginPage() {
             </button>
           </form>
 
+          {/* Divider */}
           <div className="flex items-center my-5" style={fadeIn(0.45)}>
             <div className="flex-1 h-px bg-slate-800" />
             <span className="px-3 text-xs tracking-wider" style={{ color: "rgba(150,180,255,0.35)", fontFamily: "'Orbitron', sans-serif" }}>OR</span>
             <div className="flex-1 h-px bg-slate-800" />
           </div>
 
-          {/* Google Login Provider */}
+          {/* Google */}
           <div style={fadeIn(0.55)} className="w-full flex justify-center min-h-[40px] GoogleLoginWrapper cursor-pointer">
-            <div className="w-[350px] overflow-hidden rounded-xl bg-[#0b1426] flex justify-center cursor-pointer">
+            <div className="w-[350px] overflow-hidden rounded-xl bg-[#0b1426] flex justify-center">
               <GoogleLogin
                 onSuccess={handleGoogleSuccess}
                 onError={handleGoogleError}
@@ -490,14 +456,10 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Footer Routing Block */}
+          {/* Register link */}
           <p
             className="text-center text-sm mt-5"
-            style={{
-              color: "rgba(150,180,255,0.55)",
-              fontFamily: "'Rajdhani', sans-serif",
-              ...fadeIn(0.65),
-            }}
+            style={{ color: "rgba(150,180,255,0.55)", fontFamily: "'Rajdhani', sans-serif", ...fadeIn(0.65) }}
           >
             Don't have an account yet?{" "}
             <button
@@ -529,6 +491,8 @@ export default function LoginPage() {
       />
 
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap');
+
         @keyframes shimmerAnimation {
           0% { transform: translateX(-100%) skewX(-20deg); }
           100% { transform: translateX(300%) skewX(-20deg); }
