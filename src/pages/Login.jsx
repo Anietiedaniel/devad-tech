@@ -191,7 +191,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
-  const [error, setError] = useState([]);
+  const [, setError] = useState([]); // Kept state intact for side-effect errors
 
   const [modal, setModal] = useState({
     open: false,
@@ -405,6 +405,20 @@ export default function LoginPage() {
               }
             />
 
+            <div
+              className="text-right text-sm mt-2"
+              style={fadeIn(0.4)}
+            >
+              <button
+                type="button"
+                onClick={() => navigate("/forgot-password")}
+                className="font-bold transition-all duration-200 hover:brightness-125 cursor-pointer"
+                style={{ color: "#38bdf8", fontFamily: "'Orbitron', sans-serif", fontSize: "12px" }}
+              >
+                Forgot Password?
+              </button>
+            </div>
+
             {/* Submit button */}
             <button
               type="submit"
@@ -425,11 +439,9 @@ export default function LoginPage() {
               }}
             >
               <div
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 shimmer-effect"
                 style={{
                   background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%)",
-                  transform: "skewX(-20deg)",
-                  animation: "shimmer 1.5s infinite",
                 }}
               />
               <span className="relative flex items-center justify-center gap-3">
@@ -465,7 +477,7 @@ export default function LoginPage() {
           </div>
 
           {/* Google Login Provider */}
-          <div style={fadeIn(0.55)} className="w-full flex justify-center min-h-[2px] GoogleLoginWrapper cursor-pointer">
+          <div style={fadeIn(0.55)} className="w-full flex justify-center min-h-[40px] GoogleLoginWrapper cursor-pointer">
             <div className="w-[350px] overflow-hidden rounded-xl bg-[#0b1426] flex justify-center cursor-pointer">
               <GoogleLogin
                 onSuccess={handleGoogleSuccess}
@@ -474,9 +486,6 @@ export default function LoginPage() {
                 theme="filled_dark"
                 shape="rectangular"
                 width="350px"
-                containerProps={{
-                  style: { width: "350px", display: "flex", justifyContent: "center" }
-                }}
               />
             </div>
           </div>
@@ -521,11 +530,14 @@ export default function LoginPage() {
       />
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap');
-
-        @keyframes shimmer {
+        @keyframes shimmerAnimation {
           0% { transform: translateX(-100%) skewX(-20deg); }
           100% { transform: translateX(300%) skewX(-20deg); }
+        }
+
+        .shimmer-effect {
+          transform: skewX(-20deg);
+          animation: shimmerAnimation 1.5s infinite;
         }
 
         input::placeholder {
