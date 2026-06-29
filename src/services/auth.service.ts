@@ -104,7 +104,7 @@ export const authService = {
     password: string
   ) {
     const { data } =
-      await api.post(
+      await api.put(
         `/api/auth/reset-password/${token}`,
         {
           password,
