@@ -549,7 +549,6 @@ const validate = () => {
             </label>
 
             {/* Submit button */}
-      // Submit button - remove the disabled/blur classes
       <button
         type="submit"
         disabled={loading}
@@ -609,7 +608,6 @@ const validate = () => {
           </div>
 
           {/* Google Component */}
-        // Google login wrapper - remove blur/disable
           <div
             style={fadeIn(0.55)}
             className="w-full flex justify-center min-h-[2px] cursor-pointer transition-all duration-300"
