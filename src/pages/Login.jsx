@@ -110,17 +110,7 @@ function CircuitLines({ side }) {
   );
 }
 
-function InputField({
-  id,
-  type = "text",
-  placeholder,
-  value,
-  onChange,
-  icon,
-  focusedField,
-  setFocusedField,
-  rightSlot,
-}) {
+function InputField({ id, type = "text", placeholder, value, onChange, icon, focusedField, setFocusedField, rightSlot }) {
   return (
     <div className="relative group">
       <div
@@ -215,8 +205,7 @@ export default function LoginPage() {
     setTimeout(() => setMounted(true), 100);
   }, []);
 
-  const set = (field) => (e) => 
-    setForm((prev) => ({ ...prev, [field]: e.target.value }));
+  const set = (field) => (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
   const showModal = (type, title, message) =>
     setModal({ open: true, type, title, message });
@@ -237,10 +226,16 @@ export default function LoginPage() {
 
       showModal("loading", "Authenticating...", "Verifying secure credentials with Google.");
 
-      if (googleLogin) {
-        await googleLogin(googleToken);
-      } else {
+      if (!googleLogin) {
         throw new Error("Google Authentication method is uninitialized in context.");
+      }
+
+      // Capture the auth context payload response directly
+      const session = await googleLogin(googleToken);
+      
+      // If your context returns false or undefined tokens on background network failures, intercept it
+      if (session === false) {
+        throw new Error("Handshake authorized but security token validation dropped.");
       }
 
       showModal("success", "Welcome Back!", "Login successful. Redirecting to your workspace.");
@@ -278,15 +273,22 @@ export default function LoginPage() {
 
     try {
       setLoading(true);
-      showModal("loading", "Signing In...", "Please wait a moment while we establish a secure connection.");
+      showModal("loading", "Signing In…", "Please wait a moment while we establish a secure connection.");
       
-      await login({
+      // Await your context engine execution pipeline
+      const result = await login({
         email: form.email,
         password: form.password,
       });
 
+      // Defensive Check: If your backend returns 200 but context execution properties indicate failure
+      if (result === false) {
+        throw new Error("Authentication succeeded but session state context initialization failed.");
+      }
+
       showModal("success", "Welcome Back!", "You've signed in successfully.");
     } catch (err) {
+      console.error("Login verification breakdown:", err);
       const msg = err.response?.data?.message || err.message || "Operation failed. Please verify entry variables.";
       showModal("error", "Execution Terminated", msg);
     } finally {
@@ -474,7 +476,7 @@ export default function LoginPage() {
             <div className="flex-1 h-px bg-slate-800" />
           </div>
 
-          {/* Google Login Wrapper */}
+          {/* Google Login Provider */}
           <div style={fadeIn(0.55)} className="w-full flex justify-center min-h-[40px] GoogleLoginWrapper cursor-pointer">
             <div className="w-[350px] overflow-hidden rounded-xl bg-[#0b1426] flex justify-center cursor-pointer">
               <GoogleLogin
@@ -488,7 +490,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Footer Router Links */}
+          {/* Footer Routing Block */}
           <p
             className="text-center text-sm mt-5"
             style={{
@@ -508,8 +510,10 @@ export default function LoginPage() {
             </button>
           </p>
 
-          <div className="absolute bottom-0 left-0 right-0 h-px"
-            style={{ background: "linear-gradient(90deg, transparent, rgba(0,150,255,0.3), transparent)" }} />
+          <div
+            className="absolute bottom-0 left-0 right-0 h-px"
+            style={{ background: "linear-gradient(90deg, transparent, rgba(0,150,255,0.3), transparent)" }}
+          />
         </div>
       </div>
 
