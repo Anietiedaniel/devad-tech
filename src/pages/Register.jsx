@@ -280,7 +280,11 @@ export default function RegisterPage() {
 
       await authService.googleLogin(googleToken);
 
-      showModal("success", "Welcome!", "Login successful. Redirecting to your workspace.");
+       showModal(
+        "success",
+        "Account created!",
+        "Welcome aboard! Redirecting to your workspace."
+      );
     } catch (err) {
       console.error("Google Auth execution failed:", err);
       const errMsg = err.response?.data?.message || "Google sign-in verification failed.";
