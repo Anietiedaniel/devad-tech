@@ -346,7 +346,7 @@ export default function RegisterPage() {
       showModal("loading", "Creating account…", "Please wait a moment.");
 
       await authService.register({
-        fullName: form.fullName,
+        name: form.fullName,
         email: form.email,
         password: form.password,
       });
