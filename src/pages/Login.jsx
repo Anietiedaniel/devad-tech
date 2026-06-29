@@ -191,7 +191,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
-  const [, setError] = useState([]); // Kept state intact for side-effect errors
+  const [, setError] = useState([]);
 
   const [modal, setModal] = useState({
     open: false,
@@ -369,7 +369,7 @@ export default function LoginPage() {
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4" style={fadeIn(0.35)}>
+          <form onSubmit={handleSubmit} className="space-y-3" style={fadeIn(0.35)}>
 
             {/* Email Input */}
             <InputField
@@ -383,47 +383,47 @@ export default function LoginPage() {
               icon={ICONS.email}
             />
 
-            {/* Password Input */}
-            <InputField
-              id="password"
-              type={showPass ? "text" : "password"}
-              placeholder="Password"
-              value={form.password}
-              onChange={set("password")}
-              focusedField={focusedField}
-              setFocusedField={setFocusedField}
-              icon={ICONS.lock}
-              rightSlot={
+            {/* Password Input Stack */}
+            <div className="space-y-2">
+              <InputField
+                id="password"
+                type={showPass ? "text" : "password"}
+                placeholder="Password"
+                value={form.password}
+                onChange={set("password")}
+                focusedField={focusedField}
+                setFocusedField={setFocusedField}
+                icon={ICONS.lock}
+                rightSlot={
+                  <button
+                    type="button"
+                    onClick={() => setShowPass(!showPass)}
+                    className="px-4 flex items-center transition-colors duration-200"
+                    style={{ color: showPass ? "#38bdf8" : "rgba(150,180,255,0.5)" }}
+                  >
+                    <EyeIcon open={showPass} />
+                  </button>
+                }
+              />
+              
+              {/* Contextual Forgot Password Right Under Input Box */}
+              <div className="text-right px-1">
                 <button
                   type="button"
-                  onClick={() => setShowPass(!showPass)}
-                  className="px-4 flex items-center transition-colors duration-200"
-                  style={{ color: showPass ? "#38bdf8" : "rgba(150,180,255,0.5)" }}
+                  onClick={() => navigate("/forgot-password")}
+                  className="font-bold transition-all duration-200 hover:brightness-125 cursor-pointer opacity-80 hover:opacity-100"
+                  style={{ color: "#38bdf8", fontFamily: "'Orbitron', sans-serif", fontSize: "11px", letterSpacing: "0.05em" }}
                 >
-                  <EyeIcon open={showPass} />
+                  Forgot Password?
                 </button>
-              }
-            />
-
-            <div
-              className="text-right text-sm mt-2"
-              style={fadeIn(0.4)}
-            >
-              <button
-                type="button"
-                onClick={() => navigate("/forgot-password")}
-                className="font-bold transition-all duration-200 hover:brightness-125 cursor-pointer"
-                style={{ color: "#38bdf8", fontFamily: "'Orbitron', sans-serif", fontSize: "12px" }}
-              >
-                Forgot Password?
-              </button>
+              </div>
             </div>
 
             {/* Submit button */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full relative overflow-hidden rounded-xl py-3.5 font-bold text-sm tracking-widest transition-all duration-300 group mt-6 cursor-pointer"
+              className="w-full relative overflow-hidden rounded-xl py-3.5 font-bold text-sm tracking-widest transition-all duration-300 group mt-5 cursor-pointer"
               style={{
                 background: loading
                   ? "rgba(0,100,200,0.5)"
