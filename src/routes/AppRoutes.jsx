@@ -1,25 +1,25 @@
 import { Routes, Route } from "react-router-dom";
 import MainLayout from "../layout/MainLayout";
-import ScrollToTop from "../utils/Scroll"; // Your utility import
-
+import ScrollToTop from "../utils/Scroll";
 import Home from "../pages/Home";
 import CoursesPage from "../pages/Courses";
 import CourseDetailPage from "../pages/CourseDetail";
 import CareerPathsPage from "../pages/CareerPath";
 import AboutUs from "../pages/About";
 import ContactUs from "../pages/Contact";
-
 import RegisterPage from "../pages/Register";
 import LoginPage from "../pages/Login";
+import VerifyEmailPage from "../pages/VerifyEmail";
 
 export default function AppRoutes() {
   return (
     <>
-      {/* 1. Put it right here! It will listen to the router context and fire on every change */}
       <ScrollToTop />
-
-      {/* 2. Your standard routes wrapper handles the view swapping below it */}
       <Routes>
+        {/* Auth standalone pages */}
+        <Route path="verify-email/:token" element={<VerifyEmailPage />} />
+
+        {/* Main site with layout */}
         <Route path="/" element={<MainLayout />}>
           <Route index element={<Home />} />
           <Route path="/courses" element={<CoursesPage />} />
