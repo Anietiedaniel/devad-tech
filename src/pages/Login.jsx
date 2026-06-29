@@ -9,7 +9,9 @@ function Particles() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
     const ctx = canvas.getContext("2d");
+    if (!ctx) return;
     let animId;
 
     const resize = () => {
@@ -108,7 +110,17 @@ function CircuitLines({ side }) {
   );
 }
 
-function InputField({ id, type = "text", placeholder, value, onChange, icon, focusedField, setFocusedField, rightSlot }) {
+function InputField({
+  id,
+  type = "text",
+  placeholder,
+  value,
+  onChange,
+  icon,
+  focusedField,
+  setFocusedField,
+  rightSlot,
+}) {
   return (
     <div className="relative group">
       <div
@@ -183,15 +195,11 @@ function EyeIcon({ open }) {
 }
 
 export default function LoginPage() {
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-  });
+  const [form, setForm] = useState({ email: "", password: "" });
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
-  const [, setError] = useState([]);
 
   const [modal, setModal] = useState({
     open: false,
@@ -207,7 +215,8 @@ export default function LoginPage() {
     setTimeout(() => setMounted(true), 100);
   }, []);
 
-  const set = (field) => (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }));
+  const set = (field) => (e) => 
+    setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
   const showModal = (type, title, message) =>
     setModal({ open: true, type, title, message });
@@ -238,15 +247,12 @@ export default function LoginPage() {
     } catch (err) {
       console.error("Google Auth execution failed:", err);
       const errMsg = err.response?.data?.message || err.message || "Google sign-in verification failed.";
-      setError([errMsg]);
       showModal("error", "Authentication Failed", errMsg);
     }
   };
 
   const handleGoogleError = () => {
-    const genericError = "Google handshake initialization failed.";
-    setError([genericError]);
-    showModal("error", "Sign In Failed", genericError);
+    showModal("error", "Sign In Failed", "Google handshake initialization failed.");
   };
 
   const validate = () => {
@@ -272,7 +278,7 @@ export default function LoginPage() {
 
     try {
       setLoading(true);
-      showModal("loading", "Signing In…", "Please wait a moment while we establish a secure connection.");
+      showModal("loading", "Signing In...", "Please wait a moment while we establish a secure connection.");
       
       await login({
         email: form.email,
@@ -327,7 +333,6 @@ export default function LoginPage() {
 
       {/* Card */}
       <div className="relative w-full max-w-md mx-4" style={{ zIndex: 10, ...cardStyle }}>
-        {/* Glow border */}
         <div
           className="absolute -inset-0.5 rounded-2xl opacity-60"
           style={{
@@ -345,7 +350,6 @@ export default function LoginPage() {
             backdropFilter: "blur(20px)",
           }}
         >
-          {/* Top shimmer */}
           <div className="absolute top-0 left-0 right-0 h-px"
             style={{ background: "linear-gradient(90deg, transparent, rgba(0,200,255,0.6), transparent)" }} />
 
@@ -370,8 +374,6 @@ export default function LoginPage() {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-3" style={fadeIn(0.35)}>
-
-            {/* Email Input */}
             <InputField
               id="email"
               type="email"
@@ -383,7 +385,6 @@ export default function LoginPage() {
               icon={ICONS.email}
             />
 
-            {/* Password Input Stack */}
             <div className="space-y-2">
               <InputField
                 id="password"
@@ -406,7 +407,6 @@ export default function LoginPage() {
                 }
               />
               
-              {/* Contextual Forgot Password Right Under Input Box */}
               <div className="text-right px-1">
                 <button
                   type="button"
@@ -419,7 +419,6 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Submit button */}
             <button
               type="submit"
               disabled={loading}
@@ -469,14 +468,13 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Alternative Auth Blocks */}
           <div className="flex items-center my-5" style={fadeIn(0.45)}>
             <div className="flex-1 h-px bg-slate-800" />
             <span className="px-3 text-xs tracking-wider" style={{ color: "rgba(150,180,255,0.35)", fontFamily: "'Orbitron', sans-serif" }}>OR</span>
             <div className="flex-1 h-px bg-slate-800" />
           </div>
 
-          {/* Google Login Provider */}
+          {/* Google Login Wrapper */}
           <div style={fadeIn(0.55)} className="w-full flex justify-center min-h-[40px] GoogleLoginWrapper cursor-pointer">
             <div className="w-[350px] overflow-hidden rounded-xl bg-[#0b1426] flex justify-center cursor-pointer">
               <GoogleLogin
@@ -490,7 +488,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Footer Routing Block */}
+          {/* Footer Router Links */}
           <p
             className="text-center text-sm mt-5"
             style={{
@@ -510,11 +508,8 @@ export default function LoginPage() {
             </button>
           </p>
 
-          {/* Bottom shimmer */}
-          <div
-            className="absolute bottom-0 left-0 right-0 h-px"
-            style={{ background: "linear-gradient(90deg, transparent, rgba(0,150,255,0.3), transparent)" }}
-          />
+          <div className="absolute bottom-0 left-0 right-0 h-px"
+            style={{ background: "linear-gradient(90deg, transparent, rgba(0,150,255,0.3), transparent)" }} />
         </div>
       </div>
 
@@ -534,22 +529,18 @@ export default function LoginPage() {
           0% { transform: translateX(-100%) skewX(-20deg); }
           100% { transform: translateX(300%) skewX(-20deg); }
         }
-
         .shimmer-effect {
           transform: skewX(-20deg);
           animation: shimmerAnimation 1.5s infinite;
         }
-
         input::placeholder {
           color: rgba(150, 180, 255, 0.35);
           font-family: 'Rajdhani', sans-serif;
         }
-
         .GoogleLoginWrapper iframe {
           background-color: transparent !important;
           color-scheme: dark !important;
         }
-
         * { -webkit-font-smoothing: antialiased; }
       `}</style>
     </div>
