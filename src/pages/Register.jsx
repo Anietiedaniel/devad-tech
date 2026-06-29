@@ -296,47 +296,32 @@ export default function RegisterPage() {
   };
 
   // FIXED: Explicitly checks for length, uppercase, lowercase, numbers, and symbols before allowing submissions
-  const validate = () => {
-    const { fullName, email, password, confirmPassword } = form;
-    if (!fullName || !email || !password || !confirmPassword) {
-      showModal("warning", "Missing fields", "Please fill in all fields.");
-      return false;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      showModal("warning", "Invalid email", "Please enter a valid email address.");
-      return false;
-    }
-    if (password.length < 6) {
-      showModal("warning", "Weak password", "Password must be at least 6 characters.");
-      return false;
-    }
-    if (!/[A-Z]/.test(password)) {
-      showModal("warning", "Password Criteria Missing", "Password must contain at least one uppercase letter.");
-      return false;
-    }
-    if (!/[a-z]/.test(password)) {
-      showModal("warning", "Password Criteria Missing", "Password must contain at least one lowercase letter.");
-      return false;
-    }
-    if (!/[0-9]/.test(password)) {
-      showModal("warning", "Password Criteria Missing", "Password must contain at least one base-10 digit numerical character.");
-      return false;
-    }
-    if (!/[^A-Za-z0-9]/.test(password)) {
-      showModal("warning", "Password Criteria Missing", "Password must contain at least one special symbol component.");
-      return false;
-    }
-    if (password !== confirmPassword) {
-      showModal("error", "Passwords don't match", "Please make sure both passwords are identical.");
-      return false;
-    }
-    if (!agreed) {
-      showModal("warning", "Terms required", "Please agree to the Terms & Privacy Policy to continue.");
-      return false;
-    }
-    return true;
-  };
-
+ // validate() - replace the entire function
+const validate = () => {
+  const { fullName, email, password, confirmPassword } = form;
+  if (!fullName || !email || !password || !confirmPassword) {
+    showModal("warning", "Missing Fields", "Please fill in all fields before continuing.");
+    return false;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showModal("warning", "Invalid Email", "Please enter a valid email address.");
+    return false;
+  }
+  if (password.length < 6) {
+    showModal("warning", "Password Too Short", "Your password must be at least 6 characters long.");
+    return false;
+  }
+  if (password !== confirmPassword) {
+    showModal("error", "Passwords Don't Match", "Please make sure both password fields are identical.");
+    return false;
+  }
+  if (!agreed) {
+    showModal("warning", "Terms & Privacy Policy", "You must agree to the Terms of Service and Privacy Policy to create an account.");
+    return false;
+  }
+  return true;
+};
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
@@ -564,26 +549,25 @@ export default function RegisterPage() {
             </label>
 
             {/* Submit button */}
-            <button
-              type="submit"
-              disabled={loading || !agreed}
-              className={`w-full relative overflow-hidden rounded-xl py-3.5 font-bold text-sm tracking-widest transition-all duration-300 group mt-2 cursor-pointer ${
-                (!agreed || loading) ? "opacity-40 blur-[1px] pointer-events-none" : ""
-              }`}
-              style={{
-                background: loading
-                  ? "rgba(0,100,200,0.5)"
-                  : "linear-gradient(135deg, #0066ff 0%, #0099ff 50%, #00c8ff 100%)",
-                color: "#fff",
-                fontFamily: "'Orbitron', 'Rajdhani', sans-serif",
-                fontSize: "13px",
-                letterSpacing: "0.15em",
-                boxShadow: (loading || !agreed)
-                  ? "none"
-                  : "0 0 30px rgba(0,150,255,0.4), 0 4px 15px rgba(0,100,255,0.3)",
-                transform: loading ? "scale(0.99)" : "scale(1)",
-              }}
-            >
+      // Submit button - remove the disabled/blur classes
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full relative overflow-hidden rounded-xl py-3.5 font-bold text-sm tracking-widest transition-all duration-300 group mt-2 cursor-pointer"
+        style={{
+          background: loading
+            ? "rgba(0,100,200,0.5)"
+            : "linear-gradient(135deg, #0066ff 0%, #0099ff 50%, #00c8ff 100%)",
+          color: "#fff",
+          fontFamily: "'Orbitron', 'Rajdhani', sans-serif",
+          fontSize: "13px",
+          letterSpacing: "0.15em",
+          boxShadow: loading
+            ? "none"
+            : "0 0 30px rgba(0,150,255,0.4), 0 4px 15px rgba(0,100,255,0.3)",
+          transform: loading ? "scale(0.99)" : "scale(1)",
+        }}
+      >
               <div
                 className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 cursor-pointer"
                 style={{
@@ -625,11 +609,10 @@ export default function RegisterPage() {
           </div>
 
           {/* Google Component */}
-          <div 
-            style={fadeIn(0.55)} 
-            className={`w-full flex justify-center min-h-[2px] cursor-pointer transition-all duration-300 ${
-              !agreed ? "opacity-40 blur-[1px] pointer-events-none" : ""
-            }`}
+        // Google login wrapper - remove blur/disable
+          <div
+            style={fadeIn(0.55)}
+            className="w-full flex justify-center min-h-[2px] cursor-pointer transition-all duration-300"
           >
             <div className="w-[350px] overflow-hidden rounded-xl bg-[#0b1426] flex justify-center">
               <GoogleLogin
