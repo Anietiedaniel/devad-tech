@@ -11,6 +11,7 @@ import RegisterPage from "../pages/Register";
 import LoginPage from "../pages/Login";
 import ForgotPasswordPage from "../pages/ForgotPassword";
 import VerifyEmailPage from "../pages/VerifyEmail";
+import ResetPasswordPage from "../pages/ResetPassword"
 
 export default function AppRoutes() {
   return (
@@ -20,6 +21,8 @@ export default function AppRoutes() {
         {/* Auth standalone pages */}
         <Route path="verify-email/:token" element={<VerifyEmailPage />} />
         <Route path="forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="reset-password" element={<ResetPasswordPage />} />
+         
 
         {/* Main site with layout */}
         <Route path="/" element={<MainLayout />}>
