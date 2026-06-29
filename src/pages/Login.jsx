@@ -177,7 +177,7 @@ function EyeIcon({ open }) {
   ) : (
     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268-2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
     </svg>
   );
 }
@@ -192,7 +192,6 @@ export default function LoginPage() {
   const [mounted, setMounted] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
   const [error, setError] = useState([]);
-  const [isForgotPassword, setIsForgotPassword] = useState(false);
 
   const [modal, setModal] = useState({
     open: false,
@@ -202,8 +201,7 @@ export default function LoginPage() {
   });
 
   const navigate = useNavigate();
-  // Destructuring forgotPassword request method along with typical auth utilities
-  const { login, googleLogin, forgotPassword } = useAuth(); 
+  const { login, googleLogin } = useAuth(); 
 
   useEffect(() => {
     setTimeout(() => setMounted(true), 100);
@@ -218,11 +216,8 @@ export default function LoginPage() {
     const currentType = modal.type;
     setModal((prev) => ({ ...prev, open: false }));
 
-    if (currentType === "success" && !isForgotPassword) {
+    if (currentType === "success") {
       navigate("/dashboard");
-    } else if (currentType === "success" && isForgotPassword) {
-      // Revert screen state back to standard login phase after successfully triggering recovery link
-      setIsForgotPassword(false);
     }
   };
 
@@ -264,7 +259,7 @@ export default function LoginPage() {
       showModal("warning", "Invalid email", "Please enter a valid email address.");
       return false;
     }
-    if (!isForgotPassword && !password) {
+    if (!password) {
       showModal("warning", "Missing field", "Please fill in your password.");
       return false;
     }
@@ -277,27 +272,14 @@ export default function LoginPage() {
 
     try {
       setLoading(true);
+      showModal("loading", "Signing In…", "Please wait a moment while we establish a secure connection.");
+      
+      await login({
+        email: form.email,
+        password: form.password,
+      });
 
-      if (isForgotPassword) {
-        showModal("loading", "Processing Request…", "Broadcasting recovery protocols to security node.");
-        
-        if (forgotPassword) {
-          await forgotPassword(form.email);
-        } else {
-          throw new Error("Password recovery feature is currently down or context is missing.");
-        }
-
-        showModal("success", "Transmission Successful", "A terminal authentication override link has been deployed to your inbox.");
-      } else {
-        showModal("loading", "Signing In…", "Please wait a moment while we establish a secure connection.");
-        
-        await login({
-          email: form.email,
-          password: form.password,
-        });
-
-        showModal("success", "Welcome Back!", "You've signed in successfully.");
-      }
+      showModal("success", "Welcome Back!", "You've signed in successfully.");
     } catch (err) {
       const msg = err.response?.data?.message || err.message || "Operation failed. Please verify entry variables.";
       showModal("error", "Execution Terminated", msg);
@@ -379,13 +361,10 @@ export default function LoginPage() {
                 fontFamily: "'Orbitron', sans-serif",
               }}
             >
-              {isForgotPassword ? "Reset Password" : "Welcome Back"}
+              Welcome Back
             </h2>
             <p className="text-sm mt-1" style={{ color: "rgba(180,210,255,0.65)" }}>
-              {isForgotPassword 
-                ? "Enter parameters to transmit override sequence" 
-                : "Secure access panel to your console"
-              }
+              Secure access panel to your console
             </p>
           </div>
 
@@ -404,64 +383,27 @@ export default function LoginPage() {
               icon={ICONS.email}
             />
 
-            {/* Conditional Password Input & Options Area */}
-            {!isForgotPassword ? (
-              <>
-                <InputField
-                  id="password"
-                  type={showPass ? "text" : "password"}
-                  placeholder="Password"
-                  value={form.password}
-                  onChange={set("password")}
-                  focusedField={focusedField}
-                  setFocusedField={setFocusedField}
-                  icon={ICONS.lock}
-                  rightSlot={
-                    <button
-                      type="button"
-                      onClick={() => setShowPass(!showPass)}
-                      className="px-4 flex items-center transition-colors duration-200"
-                      style={{ color: showPass ? "#38bdf8" : "rgba(150,180,255,0.5)" }}
-                    >
-                      <EyeIcon open={showPass} />
-                    </button>
-                  }
-                />
-                
-                {/* Forgot Password Action Trigger */}
-                <div className="flex justify-end pt-1">
-                  <button
-                    type="button"
-                    onClick={() => setIsForgotPassword(true)}
-                    className="text-xs font-semibold tracking-wide transition-colors duration-200 hover:text-[#00c8ff] cursor-pointer"
-                    style={{ 
-                      color: "rgba(56,189,248,0.8)", 
-                      fontFamily: "'Orbitron', sans-serif" 
-                    }}
-                  >
-                    Forgot Password?
-                  </button>
-                </div>
-              </>
-            ) : (
-              /* Inline Return Switch */
-              <div className="flex justify-start pt-1">
+            {/* Password Input */}
+            <InputField
+              id="password"
+              type={showPass ? "text" : "password"}
+              placeholder="Password"
+              value={form.password}
+              onChange={set("password")}
+              focusedField={focusedField}
+              setFocusedField={setFocusedField}
+              icon={ICONS.lock}
+              rightSlot={
                 <button
                   type="button"
-                  onClick={() => setIsForgotPassword(false)}
-                  className="text-xs font-semibold tracking-wide flex items-center gap-1.5 transition-colors duration-200 hover:text-[#00c8ff]"
-                  style={{ 
-                    color: "rgba(150,180,255,0.6)", 
-                    fontFamily: "'Orbitron', sans-serif" 
-                  }}
+                  onClick={() => setShowPass(!showPass)}
+                  className="px-4 flex items-center transition-colors duration-200"
+                  style={{ color: showPass ? "#38bdf8" : "rgba(150,180,255,0.5)" }}
                 >
-                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-                  </svg>
-                  Return to Main Sign In
+                  <EyeIcon open={showPass} />
                 </button>
-              </div>
-            )}
+              }
+            />
 
             {/* Submit button */}
             <button
@@ -498,11 +440,11 @@ export default function LoginPage() {
                       <path className="opacity-75" fill="currentColor"
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                     </svg>
-                    {isForgotPassword ? "SENDING LINK..." : "AUTHORIZING ACCESS..."}
+                    AUTHORIZING ACCESS...
                   </>
                 ) : (
                   <>
-                    {isForgotPassword ? "RECOVER PASSWORD" : "SIGN IN"}
+                    SIGN IN
                     <svg
                       className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
                       fill="none" viewBox="0 0 24 24" stroke="currentColor"
@@ -515,34 +457,29 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Alternative Auth Blocks (Only visible in normal login state) */}
-          {!isForgotPassword && (
-            <>
-              {/* Divider */}
-              <div className="flex items-center my-5" style={fadeIn(0.45)}>
-                <div className="flex-1 h-px bg-slate-800" />
-                <span className="px-3 text-xs tracking-wider" style={{ color: "rgba(150,180,255,0.35)", fontFamily: "'Orbitron', sans-serif" }}>OR</span>
-                <div className="flex-1 h-px bg-slate-800" />
-              </div>
+          {/* Alternative Auth Blocks */}
+          <div className="flex items-center my-5" style={fadeIn(0.45)}>
+            <div className="flex-1 h-px bg-slate-800" />
+            <span className="px-3 text-xs tracking-wider" style={{ color: "rgba(150,180,255,0.35)", fontFamily: "'Orbitron', sans-serif" }}>OR</span>
+            <div className="flex-1 h-px bg-slate-800" />
+          </div>
 
-              {/* Google Login Provider */}
-              <div style={fadeIn(0.55)} className="w-full flex justify-center min-h-[2px] GoogleLoginWrapper cursor-pointer">
-                <div className="w-[350px] overflow-hidden rounded-xl bg-[#0b1426] flex justify-center cursor-pointer">
-                  <GoogleLogin
-                    onSuccess={handleGoogleSuccess}
-                    onError={handleGoogleError}
-                    text="continue_with"
-                    theme="filled_dark"
-                    shape="rectangular"
-                    width="350px"
-                    containerProps={{
-                      style: { width: "350px", display: "flex", justifyContent: "center" }
-                    }}
-                  />
-                </div>
-              </div>
-            </>
-          )}
+          {/* Google Login Provider */}
+          <div style={fadeIn(0.55)} className="w-full flex justify-center min-h-[2px] GoogleLoginWrapper cursor-pointer">
+            <div className="w-[350px] overflow-hidden rounded-xl bg-[#0b1426] flex justify-center cursor-pointer">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                text="continue_with"
+                theme="filled_dark"
+                shape="rectangular"
+                width="350px"
+                containerProps={{
+                  style: { width: "350px", display: "flex", justifyContent: "center" }
+                }}
+              />
+            </div>
+          </div>
 
           {/* Footer Routing Block */}
           <p
